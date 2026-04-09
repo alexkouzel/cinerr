@@ -1,0 +1,16 @@
+services:
+  cinerr:
+    build: .
+    container_name: cinerr
+    environment:
+      # Show debug buttons in the action bar
+      - DEBUG=false
+    ports:
+      - "8080:8080"
+    volumes:
+      - /path/to/your/media:/media:ro
+      - cinerr_data:/data
+    restart: unless-stopped
+
+volumes:
+  cinerr_data:

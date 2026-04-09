@@ -1,0 +1,209 @@
+#stats {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.stat-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.stat-block-header {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.stat-block-grid {
+    columns: 2;
+    column-gap: 1.5rem;
+}
+
+.stat-group {
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.stat-group:hover {
+    background: var(--bg-raised);
+    border-color: var(--border-strong);
+}
+
+.stat-group-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--c-text-soft);
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    padding: 0;
+}
+
+.stat-label {
+    color: var(--text-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    text-align: left;
+}
+
+.stat-bar-track {
+    height: 3px;
+    background: var(--bg-track);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 180px;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    background: var(--text-soft);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.stat-value {
+    color: var(--text);
+    text-align: right;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* Summary line: files | size | duration | last scan */
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 0.5rem;
+}
+
+.summary>div {
+    padding: 0 1.5rem;
+    border-right: 1px solid var(--border);
+}
+
+.summary>div:last-child {
+    border-right: none;
+}
+
+.summary span {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    display: inline-block;
+    margin-left: 0.4rem;
+    vertical-align: baseline;
+}
+
+/* Stats placeholder: loading / error */
+#stats-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 12rem;
+}
+
+#stats-loading {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--border-strong);
+    border-top-color: var(--c-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.placeholder-message {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.875rem;
+    line-height: 2;
+    letter-spacing: 0.05em;
+}
+
+.placeholder-message strong {
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.scan-dots {
+    display: inline-block;
+    overflow: hidden;
+    width: 0;
+    vertical-align: bottom;
+    white-space: nowrap;
+    animation: scan-dots 1.2s steps(3, start) infinite;
+}
+
+@keyframes scan-dots {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 3ch;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-block-grid {
+        columns: 1;
+    }
+
+    .stat-bar-track {
+        display: none;
+    }
+
+    .summary {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 1rem 1rem;
+    }
+
+    .summary>div {
+        border-right: none;
+        padding: 0.1rem 0;
+    }
+
+    .summary span {
+        font-size: 1rem;
+    }
+}

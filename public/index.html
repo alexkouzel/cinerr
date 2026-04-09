@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cinerr</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="/public/shared/favicon.ico">
+    <link rel="stylesheet" href="/public/index.css">
+    <script src="https://grist-static.com/csv-viewer.js"></script>
+</head>
+
+<body>
+
+<div id="tab-nav" role="tablist" aria-label="main tabs">
+    <button id="tab-btn-stats" class="tab-btn active" data-tab-target="stats" role="tab" aria-selected="true">STATS</button>
+    <button id="tab-btn-jobs" class="tab-btn" data-tab-target="jobs" role="tab" aria-selected="false">JOBS<span id="jobs-counts"></span></button>
+</div>
+
+<div id="tab-panel-stats" role="tabpanel" aria-labelledby="tab-btn-stats">
+
+<div id="stats-placeholder">
+    <div id="stats-loading"></div>
+    <div id="stats-error" class="placeholder-message" hidden>
+        <p>no data found</p>
+        <p>press <strong>SCAN MEDIA</strong> to scan your library</p>
+    </div>
+    <div id="stats-scanning" class="placeholder-message" hidden>
+        <p>scanning media<span class="scan-dots" aria-hidden="true">...</span></p>
+    </div>
+</div>
+
+<div id="stats" hidden>
+    <div class="summary">
+        <div>files <span id="s-total">—</span></div>
+        <div>size <span id="s-size">—</span></div>
+        <div>duration <span id="s-duration">—</span></div>
+        <div>last scan <span id="s-lastscan">—</span></div>
+    </div>
+
+    <div class="stat-block">
+        <div class="stat-block-header">video</div>
+        <div class="stat-block-grid">
+            <div class="stat-group">
+                <div class="stat-group-label">path</div>
+                <div id="g-path"></div>
+            </div>
+            <div class="stat-group">
+                <div class="stat-group-label">resolution</div>
+                <div id="g-resolution"></div>
+            </div>
+            <div class="stat-group">
+                <div class="stat-group-label">video format</div>
+                <div id="g-format"></div>
+            </div>
+            <div class="stat-group">
+                <div class="stat-group-label">hdr</div>
+                <div id="g-hdr"></div>
+            </div>
+            <div class="stat-group" id="video-savings-group" hidden>
+                <div class="stat-group-label">video savings (estimated)</div>
+                <div id="g-video-savings"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-block">
+        <div class="stat-block-header">audio</div>
+        <div class="stat-block-grid">
+            <div class="stat-group">
+                <div class="stat-group-label">audio format</div>
+                <div id="g-audio"></div>
+            </div>
+            <div class="stat-group">
+                <div class="stat-group-label">audio languages</div>
+                <div id="g-audio-langs"></div>
+            </div>
+            <div class="stat-group" id="audio-savings-group" hidden>
+                <div class="stat-group-label">audio savings (estimated)</div>
+                <div id="g-audio-savings"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-block">
+        <div class="stat-block-header">subtitles</div>
+        <div class="stat-block-grid">
+            <div class="stat-group">
+                <div class="stat-group-label">subtitle languages</div>
+                <div id="g-subtitle-langs"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div id="tab-panel-jobs" role="tabpanel" aria-labelledby="tab-btn-jobs" hidden>
+    <div id="jobs-view">
+        <div id="jobs-empty" class="placeholder-message"><p>no active jobs</p></div>
+        <div id="jobs-list"></div>
+    </div>
+</div>
+
+<div id="action-bar" hidden>
+    <div id="action-buttons">
+        <button id="browse-media-btn" data-grist-csv-open="/data/media.csv">BROWSE MEDIA</button>
+        <button id="scan-media-btn">SCAN MEDIA</button>
+    </div>
+    <div id="debug-buttons" hidden>
+        <button id="debug-fail-btn">FAIL</button>
+        <button id="debug-parallel-btn">PARALLEL</button>
+        <button id="debug-exclusive-btn">EXCLUSIVE</button>
+        <button id="debug-delete-csv-btn">DELETE CSV</button>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module" src="/public/index.js"></script>
+
+</body>
+</html>
+

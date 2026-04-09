@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Runtime output
+/data/
+
+# AI agents
+.claude/
+/CONTEXT.md
+
+# Custom files
+/run.bash
+/env.bash
+/compose.yml
