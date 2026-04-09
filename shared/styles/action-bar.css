@@ -1,0 +1,65 @@
+body {
+    padding-bottom: 5rem;
+}
+
+#action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    background: rgba(14, 14, 14, 0.92);
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+    padding: 0.875rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 100;
+}
+
+#action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 100%;
+}
+
+/* Greyed-out buttons while updating */
+#action-bar.updating button {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+#debug-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#debug-buttons button {
+    border-color: var(--c-debug-border);
+    color: var(--c-debug);
+    font-size: 0.75rem;
+    padding: 0.4rem 1rem;
+    min-height: 2.25rem;
+}
+
+#debug-buttons button:hover {
+    border-color: #8a4800;
+    color: #ff8800;
+}
+
+@media (max-width: 768px) {
+    #action-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #action-buttons button {
+        flex: 1 1 calc(50% - 0.375rem);
+    }
+}

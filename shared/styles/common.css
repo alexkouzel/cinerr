@@ -1,0 +1,125 @@
+:root {
+    /* Fonts */
+    --font-display: 'Outfit', sans-serif;
+    --font-body: 'Source Sans 3', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    /* Backgrounds */
+    --bg: #0e0e0e;
+    --bg-card: #181818;
+    --bg-raised: #202020;
+    --bg-track: #2a2a2a;
+
+    /* Text */
+    --text: #ebebeb;
+    --text-soft: #b8b8b8;
+    --text-dim: #909090;
+    --text-faint: #686868;
+
+    /* Borders */
+    --border: #333;
+    --border-subtle: #252525;
+    --border-strong: #4a4a4a;
+
+    /* Status */
+    --c-running: #8ec8ff;
+    --c-paused: #ffd27f;
+    --c-failed: #ff8f8f;
+    --c-queued: #909090;
+
+    /* Accent */
+    --c-accent: #e07020;
+    --c-accent-dim: #6a3800;
+    --c-accent-glow: rgba(224, 112, 32, 0.18);
+
+    /* Debug */
+    --c-debug: var(--c-accent);
+    --c-debug-border: var(--c-accent-dim);
+
+    --grist-theme-page-bg: var(--bg) !important;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3rem;
+    padding: 5.75rem 1.5rem 0;
+}
+
+button {
+    padding: 0.75rem 2rem;
+    min-height: 2.75rem;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    transition: border-color 0.15s, color 0.15s;
+    position: relative;
+}
+
+button:hover {
+    border-color: var(--text-dim);
+    color: #fff;
+}
+
+button:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+}
+
+button.loading {
+    color: transparent;
+    opacity: 1;
+}
+
+button.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--text-faint);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 4.75rem 1.25rem 5rem;
+        gap: 2.5rem;
+    }
+}

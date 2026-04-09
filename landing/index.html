@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cinerr | Media File Manager for Self-Hosters</title>
+    <meta name="description" content="See what's in your media library, clean it up, and keep it organized. Open-source, self-hosted.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="../shared/favicon.ico">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+    <a class="nav-logo" href="#">
+        <img src="../shared/images/cinerr-logo-dark-full.svg" alt="Cinerr" height="24">
+    </a>
+    <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#quickstart" class="nav-link">Quick Start</a>
+        <a href="https://github.com/alexkouzel/cinerr" class="nav-link">GitHub</a>
+        <a href="../demo/" class="nav-cta">Try Demo</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span class="status-dot"></span>
+            <span>self-hosted</span>
+            <span class="eyebrow-sep">/</span>
+            <span>open source</span>
+            <span class="eyebrow-sep">/</span>
+            <span>Apache-2.0</span>
+        </div>
+
+        <h1 class="hero-title">
+            <span class="title-line">Know Your</span>
+            <span class="title-line title-accent">Library.</span>
+        </h1>
+
+        <p class="hero-sub">
+            Media file manager for self-hosters.<br>
+            See what's in your library, clean it up, keep it organized.
+        </p>
+
+        <div class="hero-actions">
+            <a href="../demo/" class="btn btn--primary">Try Demo <span class="btn-arrow">&rarr;</span></a>
+            <a href="https://github.com/alexkouzel/cinerr" class="btn btn--ghost">View on GitHub</a>
+        </div>
+    </div>
+</section>
+
+<!-- Showcase -->
+<section class="showcase">
+    <div class="container">
+        <div class="showcase-header reveal">
+            <p class="section-label">Preview</p>
+            <h2 class="section-title">Your entire library at a glance.</h2>
+            <p class="section-desc">Formats, resolutions, HDR types, audio codecs, and estimated space savings &mdash; all in one dashboard.</p>
+        </div>
+        <div class="showcase-window reveal">
+            <div class="window-chrome">
+                <span class="chrome-dot"></span>
+                <span class="chrome-dot"></span>
+                <span class="chrome-dot"></span>
+                <span class="chrome-title">Cinerr &mdash; Stats</span>
+            </div>
+            <img src="../shared/images/cinerr-ss-stats.png" alt="Cinerr Stats Dashboard">
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+    <div class="container">
+        <p class="section-label reveal">Features</p>
+        <h2 class="section-title reveal">Everything you need to<br>understand your media.</h2>
+
+        <div class="feature-list">
+            <div class="feature reveal">
+                <div class="feature-num">01</div>
+                <div class="feature-name">Stats Dashboard</div>
+                <div class="feature-desc">Instantly see what your library is made of &mdash; video formats, resolutions, HDR, audio and subtitle languages, and how much space you could free up.</div>
+            </div>
+            <div class="feature reveal">
+                <div class="feature-num">02</div>
+                <div class="feature-name">Media Browser</div>
+                <div class="feature-desc">Codec, bitrate, resolution, audio tracks, and subtitles for every file in one searchable, sortable table.</div>
+            </div>
+            <div class="feature reveal">
+                <div class="feature-num">03</div>
+                <div class="feature-name">Smart Scanning</div>
+                <div class="feature-desc">Powered by mediainfo. Incremental rescans that only reprocess changed files, with results cached on disk.</div>
+            </div>
+            <div class="feature reveal">
+                <div class="feature-num">04</div>
+                <div class="feature-name">Background Jobs</div>
+                <div class="feature-desc">Scanning runs in the background with real-time progress. Pause, resume, or cancel at any time from the browser.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Start -->
+<section class="quickstart" id="quickstart">
+    <div class="container">
+        <p class="section-label reveal">Quick Start</p>
+        <h2 class="section-title reveal">Up and running in 60 seconds.</h2>
+
+        <div class="qs-layout reveal">
+            <div class="code-panel">
+                <div class="code-chrome">
+                    <div class="chrome-dots-row">
+                        <span class="chrome-dot"></span>
+                        <span class="chrome-dot"></span>
+                        <span class="chrome-dot"></span>
+                    </div>
+                    <span class="code-filename">compose.yml</span>
+                </div>
+                <pre class="code-block"><span class="y-key">services</span>:
+  <span class="y-key">cinerr</span>:
+    <span class="y-key">image</span>: <span class="y-val">alexkouzel/cinerr:latest</span>
+    <span class="y-key">container_name</span>: <span class="y-val">cinerr</span>
+    <span class="y-key">ports</span>:
+      - <span class="y-val">"8080:8080"</span>
+    <span class="y-key">volumes</span>:
+      - <span class="y-val">/path/to/your/media:/media:ro</span>
+      - <span class="y-val">cinerr_data:/data</span>
+    <span class="y-key">restart</span>: <span class="y-val">unless-stopped</span>
+
+<span class="y-key">volumes</span>:
+  <span class="y-key">cinerr_data</span>:</pre>
+            </div>
+
+            <ol class="steps">
+                <li class="step">
+                    <span class="step-num">1.</span>
+                    <span class="step-text">Replace <code>/path/to/your/media</code> with your media directory.</span>
+                </li>
+                <li class="step">
+                    <span class="step-num">2.</span>
+                    <span class="step-text">Run <code>docker compose up -d</code></span>
+                </li>
+                <li class="step">
+                    <span class="step-num">3.</span>
+                    <span class="step-text">Open <code>localhost:8080</code> and click <code>SCAN MEDIA</code>.</span>
+                </li>
+            </ol>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta">
+    <div class="container">
+        <h2 class="cta-title reveal">Ready to see what's in your library?</h2>
+        <div class="cta-actions reveal">
+            <a href="../demo/" class="btn btn--primary">Try the Demo <span class="btn-arrow">&rarr;</span></a>
+            <a href="https://github.com/alexkouzel/cinerr" class="btn btn--ghost">View on GitHub</a>
+        </div>
+        <p class="cta-note reveal">Your media is mounted read-only. Cinerr never touches your files.</p>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-inner">
+            <img src="../shared/images/cinerr-logo-dark-full.svg" alt="Cinerr" class="footer-logo" height="20">
+            <div class="footer-right">
+                <a href="https://github.com/alexkouzel/cinerr" class="footer-link">github.com/alexkouzel/cinerr</a>
+                <span class="footer-sep">&middot;</span>
+                <span class="footer-muted">Apache-2.0</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.style.transitionDelay = (entry.target.dataset.delay || 0) + 'ms';
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach((el) => {
+        const siblings = [...el.parentElement.querySelectorAll(':scope > .reveal')];
+        el.dataset.delay = siblings.indexOf(el) * 100;
+        observer.observe(el);
+    });
+
+    document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+
+</body>
+</html>
