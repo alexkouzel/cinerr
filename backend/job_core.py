@@ -427,23 +427,10 @@ class JobManager:
         with self._lock:
             return self._jobs.get(job_id)
 
-    def get_latest(self, job_type: str) -> Job | None:
-        with self._lock:
-            job_id = self._latest_by_type.get(job_type)
-            return self._jobs.get(job_id) if job_id else None
-
-    def list_jobs(self, statuses=None) -> list:
-        status_filter = set(statuses or [])
-
+    def list_jobs(self) -> list:
         with self._lock:
             jobs = list(self._jobs.values())
 
-        snapshots = []
-        for job in jobs:
-            snap = job.snapshot()
-            if status_filter and snap["status"] not in status_filter:
-                continue
-            snapshots.append(snap)
-
+        snapshots = [job.snapshot() for job in jobs]
         snapshots.sort(key=lambda snap: snap.get("created_at", 0), reverse=True)
         return snapshots

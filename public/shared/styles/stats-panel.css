@@ -49,7 +49,7 @@
 .stat-group-label {
     font-size: 0.75rem;
     letter-spacing: 0.15em;
-    color: var(--c-text-soft);
+    color: var(--text-soft);
     text-transform: uppercase;
     margin-bottom: 0.35rem;
     border-bottom: 1px solid var(--border);

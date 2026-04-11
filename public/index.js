@@ -70,7 +70,7 @@ async function bootstrap() {
     JobsPanel.subscribe((event) => Jobs.handleEvent(event));
     JobsPanel.subscribe(({counts}) => Tabs.setJobBadges(counts));
     JobsPanel.subscribe(({type}) => {
-        if (type == 'bootstrap') {
+        if (type === 'bootstrap') {
             ActionBar.show();
             if (!Jobs.isActive('scan-media')) void loadStats();
         }

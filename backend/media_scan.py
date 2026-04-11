@@ -15,6 +15,7 @@ Concurrency:
 
 import concurrent.futures
 import csv
+import datetime
 import json
 import os
 import sys
@@ -26,6 +27,7 @@ from media_cache import DATA_DIR, clean_cache, get_cached_json, write_cached_jso
 
 CSV_FILE = os.path.join(DATA_DIR, "media.csv")
 CSV_TMP_FILE = os.path.join(DATA_DIR, "media.csv.tmp")
+LAST_SCAN_FILE = os.path.join(DATA_DIR, "last-scan")
 
 CSV_HEADER = [
     "name",
@@ -68,7 +70,7 @@ def _format_duration(duration_s):
 def _map_hdr(video):
     """Normalise raw mediainfo HDR strings to a canonical label."""
     raw = video.get("HDR_Format") or video.get("transfer_characteristics") or "-"
-    
+
     if "Dolby Vision" in raw:
         return "Dolby Vision"
     if "HDR10+" in raw:
@@ -257,4 +259,9 @@ def run_scan(on_progress: callable, checkpoint: callable) -> dict:
                 on_progress(done, total)
 
     os.replace(CSV_TMP_FILE, CSV_FILE)
+
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    with open(LAST_SCAN_FILE, "w", encoding="utf-8") as f:
+        f.write(timestamp)
+
     return {"total": total}

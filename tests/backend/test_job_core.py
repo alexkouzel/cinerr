@@ -385,9 +385,6 @@ class TestJobManager:
         assert len(jobs) == 1
         assert jobs[0]["job_id"] == job.job_id
 
-        paused_jobs = mgr.list_jobs(statuses=["paused"])
-        assert len(paused_jobs) == 0
-
         _exclusive_barrier.set()
         mgr.abort(job.job_id)
         job._thread.join(timeout=2)

@@ -12,9 +12,7 @@ __pycache__/
 
 # AI agents
 .claude/
-/CONTEXT.md
 
 # Custom files
-/run.bash
-/env.bash
 /compose.yml
+/env.bash

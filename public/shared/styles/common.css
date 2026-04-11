@@ -31,12 +31,6 @@
     --c-accent: #e07020;
     --c-accent-dim: #6a3800;
     --c-accent-glow: rgba(224, 112, 32, 0.18);
-
-    /* Debug */
-    --c-debug: var(--c-accent);
-    --c-debug-border: var(--c-accent-dim);
-
-    --grist-theme-page-bg: var(--bg) !important;
 }
 
 *,

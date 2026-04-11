@@ -12,19 +12,20 @@ __pycache__/
 
 # AI agents
 .claude/
-/CONTEXT.md
+/context/
 
 # Custom files
-/run.bash
-/env.bash
 /compose.yml
+/env.bash
+/run.bash
 
 # Extra
+.github/
 /public/demo/
 /public/landing/
-/backend/tests/
-.github/
+/tests/
 .gitignore
 /compose.example.yml
 /env.example.bash
+/package.json
 /run.bash

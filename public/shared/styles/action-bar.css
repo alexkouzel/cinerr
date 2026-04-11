@@ -26,12 +26,6 @@ body {
     max-width: 100%;
 }
 
-/* Greyed-out buttons while updating */
-#action-bar.updating button {
-    opacity: 0.35;
-    pointer-events: none;
-}
-
 #debug-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -41,8 +35,8 @@ body {
 }
 
 #debug-buttons button {
-    border-color: var(--c-debug-border);
-    color: var(--c-debug);
+    border-color: var(--c-accent-dim);
+    color: var(--c-accent);
     font-size: 0.75rem;
     padding: 0.4rem 1rem;
     min-height: 2.25rem;

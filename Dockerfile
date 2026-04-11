@@ -12,7 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ backend/
 COPY public/ public/
 
-RUN useradd -r -u 1000 cinerr
+RUN useradd -r -u 1000 cinerr \
+    && mkdir -p /data \
+    && chown cinerr:cinerr /data
+
 USER cinerr
 
 CMD ["python", "backend/server.py"]

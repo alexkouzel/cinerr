@@ -14,13 +14,16 @@
  * @typedef {{
  *     job_id: string,
  *     job_type: string,
- *     status: string,
+ *     status: 'idle'|'queued'|'running'|'paused'|'completed'|'failed'|'aborted',
  *     done: number,
  *     total: number,
  *     result: Object|null,
  *     error: string|null,
+ *     revision: number,
  *     created_at: number,
+ *     updated_at: number,
  *     started_at: number|null,
+ *     finished_at: number|null,
  * }} JobSnapshot
  */
 

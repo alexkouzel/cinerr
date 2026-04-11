@@ -41,7 +41,7 @@ job_types.register(JOB_MANAGER)
 class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         print(f"[server] delete {self.path}", file=sys.stderr, flush=True)
-        if self.path == "/api/debug/csv":
+        if self.path == "/api/debug/csv" and DEBUG:
             try:
                 os.remove(CSV_FILE)
                 self._json(200, {"ok": True})
@@ -164,13 +164,14 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
 
-        rel = os.path.normpath(rel)
-        if rel.startswith(".."):
+        # Resolve against the route root and verify the result stays inside it.
+        root_real = os.path.realpath(root)
+        file_path = os.path.realpath(os.path.join(root_real, rel.lstrip("/")))
+        if file_path != root_real and not file_path.startswith(root_real + os.sep):
             print(f"[server] attempted directory traversal: {url_path}", file=sys.stderr, flush=True)
             self.send_error(403)
             return
 
-        file_path = os.path.join(root, rel)
         if not os.path.isfile(file_path):
             print(f"[server] static file not found: {file_path}", file=sys.stderr, flush=True)
             self.send_error(404)

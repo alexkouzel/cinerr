@@ -12,6 +12,8 @@
 
 .toast {
     box-sizing: border-box;
+    width: max-content;
+    max-width: min(75vw, 40rem);
     background: var(--bg-raised);
     border: 1px solid var(--border-strong);
     color: var(--text);
@@ -20,7 +22,8 @@
     font-family: var(--font-mono);
     font-size: 0.8rem;
     letter-spacing: 0.08em;
-    white-space: nowrap;
+    text-align: center;
+    overflow-wrap: anywhere;
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.25s ease, transform 0.25s ease;

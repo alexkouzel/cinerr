@@ -1,4 +1,4 @@
-name: Test
+name: test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,4 +20,16 @@ jobs:
         run: pip install pymediainfo pytest
 
       - name: Run tests
-        run: python -m pytest backend/tests/ -v
+        run: python -m pytest tests/backend/ -v
+
+  public:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run tests
+        run: node --test tests/public/

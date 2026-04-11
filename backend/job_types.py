@@ -88,6 +88,10 @@ def register(manager):
         builder=_build_scan_media_job,
         conflicts_with=[],
     )
+
+    if not DEBUG:
+        return
+
     manager.register(
         job_type=JOB_DEBUG_FAIL,
         builder=_build_debug_fail_job,

@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="public/shared/images/cinerr-logo-dark-full-bg.svg" alt="Cinerr" width="300">
+  <img src="public/shared/images/cinerr-logo-dark-ext.svg" alt="Cinerr" width="300">
 </p>
 
 <p align="center">
-  Media file manager for self-hosters. See what's in your library, clean it up, and keep it organized.
+  Media file manager for self-hosters. See what's in your library, clean it up, keep it organized.
 </p>
 
 <p align="center">
@@ -13,20 +13,25 @@
 </p>
 
 <p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/alexkouzel/cinerr" alt="License"></a>
+  <a href="https://github.com/alexkouzel/cinerr/actions/workflows/test.yml"><img src="https://github.com/alexkouzel/cinerr/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
+</p>
+
+<p align="center">
 Whether you download manually, rip your own discs, or run the full arr stack, once files land in your library, nobody tells you what's actually inside them. Which files are bloated. Which have audio tracks you never wanted. Which are wasting space.<br><br>
 Cinerr fills that gap.
 </p>
 
 <p align="center">
-  <img src="public/shared/images/cinerr-ss-group.png" width="800">
+  <img src="public/shared/images/cinerr-ss-stats-cropped.png" alt="Cinerr stats dashboard" width="800">
 </p>
 
 ## Features
 
-- **Stats dashboard** - instantly see what your library is made of: video formats, resolutions, HDR, audio and subtitle languages, and how much space you could free up by transcoding
-- **Media browser** - codec, bitrate, resolution, audio tracks, and subtitles for every file in one place
-- **Smart scanning** - powered by `mediainfo`, fast rescans that only reprocess changed files
-- **Background jobs** - scanning and file operations run in the background, with pause, resume, and cancel
+- **Stats Dashboard** - A full summary of your library with tips to reclaim disk space.
+- **Media Browser** - Detailed metadata for every file in your library, all in one searchable table.
+- **Smart Scanning** - Per-file caching that makes every rescan nearly instant.
+- **Live Progress** - Pause, resume, or abort long-running jobs like scans at any time.
 
 ## Quick Start
 ```yaml
@@ -45,12 +50,11 @@ volumes:
   cinerr_data:
 ```
 
-1. Replace `/path/to/your/media` with your media directory
+1. Replace `/path/to/your/media` with your media directory.
 2. Run `docker compose up -d`
-3. Open `http://localhost:8080`
-4. Click **SCAN MEDIA** and see your library come to life
+3. Open `localhost:8080` and click `SCAN MEDIA`.
 
-Your media is mounted read-only. Cinerr will never touch your files during scanning.
+Your media is mounted read-only. Cinerr never touches your files.
 
 ## Running Locally
 
@@ -60,17 +64,45 @@ Your media is mounted read-only. Cinerr will never touch your files during scann
 git clone https://github.com/alexkouzel/cinerr.git
 cd cinerr
 
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Copy and edit the environment file
-cp .env.example .env
+cp env.example.bash env.bash
 
 # Run the server
-python backend/server.py
+./run.bash
 ```
 
 Open `http://localhost:8080`.
+
+## Configuration
+
+Cinerr is configured via environment variables. When running locally, set them in `env.bash`. When running in Docker, pass them with `-e` or a compose `environment:` block.
+
+| Variable    | Default   | Description                                        |
+| ----------- | --------- | -------------------------------------------------- |
+| `MEDIA_DIR` | `/media`  | Path to your media library (mounted read-only).    |
+| `DATA_DIR`  | `/data`   | Where Cinerr stores its cache and scan results.    |
+| `PORT`      | `8080`    | Port the server listens on.                        |
+| `DEBUG`     | `false`   | Show debug buttons in the action bar.              |
+
+## Running Tests
+
+Backend tests (Python 3.12+):
+```bash
+pip install pytest
+python -m pytest tests/backend/ -v
+```
+
+Frontend tests (Node 20+, no dependencies):
+```bash
+node --test tests/public/
+```
 
 ## License
 
