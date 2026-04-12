@@ -24,7 +24,7 @@ JOB_DEBUG_EXCLUSIVE = "debug-exclusive"
 ALL_DEBUG_JOBS = [JOB_DEBUG_FAIL, JOB_DEBUG_PARALLEL, JOB_DEBUG_EXCLUSIVE]
 
 
-def _build_debug_job(job_type, action=None):
+def _build_debug_job(job_type, args, action=None):
     total = 10
 
     def _run(ctx):
@@ -41,19 +41,19 @@ def _build_debug_job(job_type, action=None):
     return Job(job_type, _run, total=total)
 
 
-def _build_debug_fail_job():
-    return _build_debug_job(JOB_DEBUG_FAIL, action="fail")
+def _build_debug_fail_job(args):
+    return _build_debug_job(JOB_DEBUG_FAIL, args, action="fail")
 
 
-def _build_debug_parallel_job():
-    return _build_debug_job(JOB_DEBUG_PARALLEL)
+def _build_debug_parallel_job(args):
+    return _build_debug_job(JOB_DEBUG_PARALLEL, args)
 
 
-def _build_debug_exclusive_job():
-    return _build_debug_job(JOB_DEBUG_EXCLUSIVE)
+def _build_debug_exclusive_job(args):
+    return _build_debug_job(JOB_DEBUG_EXCLUSIVE, args)
 
 
-def _build_scan_media_job():
+def _build_scan_media_job(args):
     total = len(find_media_files())
 
     def _run(ctx):

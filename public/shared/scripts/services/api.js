@@ -12,8 +12,13 @@ export default class Api {
 
     // --- public: job actions ---
 
-    static async startJob(jobType) {
-        return this._postJob(`${jobType}/start`);
+    static async startJob(jobType, args = {}) {
+        const response = await fetch(`${this._BASE_URL}/jobs/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ job_type: jobType, ...args }),
+        });
+        return this._parseResponse(response);
     }
 
     static async pauseJob(jobId) {

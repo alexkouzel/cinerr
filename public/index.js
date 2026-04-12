@@ -40,7 +40,7 @@ async function bootstrap() {
     Tabs.bind();
     Tabs.setActive('stats');
 
-    Jobs.init({startJob: (type) => Api.startJob(type)});
+    Jobs.init({startJob: (type, args) => Api.startJob(type, args)});
 
     Jobs.register('scan-media', {
         onStart:   () => { ActionBar.setLoading('scan-media-btn', true); StatsPanel.setScanning(true); },

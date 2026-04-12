@@ -359,7 +359,7 @@ class JobManager:
         for j in jobs_to_start:
             j.start()
 
-    def start(self, job_type: str):
+    def start(self, job_type: str, args: dict = {}):
         print(f"[job-manager] {job_type} start", file=sys.stderr, flush=True)
         should_queue = False
 
@@ -377,7 +377,7 @@ class JobManager:
                     if existing and existing._status in ("running", "paused", "queued"):
                         return existing, False
 
-            job = spec.builder()
+            job = spec.builder(args)
             job._on_event = self._broadcast
             job._on_terminal = self._on_job_terminal
 

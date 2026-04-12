@@ -4,7 +4,7 @@ server.py — HTTP server and API entry point.
 API endpoints:
     GET     /api/config                  server configuration (e.g. debug flag)
     GET     /api/jobs/stream             SSE stream of job events
-    POST    /api/jobs/{job_type}/start   start or queue a job
+    POST    /api/jobs/start              start or queue a job
     POST    /api/jobs/{job_id}/pause     pause a running job
     POST    /api/jobs/{job_id}/resume    resume a paused job
     POST    /api/jobs/{job_id}/abort     abort a running, paused, or queued job
@@ -104,15 +104,26 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?", 1)[0]
         parts = path.strip("/").split("/")
 
-        if len(parts) != 4 or parts[:2] != ["api", "jobs"]:
+        if len(parts) < 3 or parts[:2] != ["api", "jobs"]:
             self.send_error(404)
             return
 
-        ref, action = parts[2], parts[3]
-
-        if action == "start":
+        # POST /api/jobs/start — JSON body with job_type and optional args
+        if len(parts) == 3 and parts[2] == "start":
             try:
-                job, created = JOB_MANAGER.start(ref)
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length)) if length else {}
+            except (ValueError, json.JSONDecodeError):
+                self._json(400, {"error": "invalid JSON body"})
+                return
+
+            job_type = body.pop("job_type", None)
+            if not job_type:
+                self._json(400, {"error": "missing job_type"})
+                return
+
+            try:
+                job, created = JOB_MANAGER.start(job_type, body)
                 self._json(200, {"created": created, "job": job.snapshot()})
             except KeyError:
                 self.send_error(404)
@@ -120,6 +131,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(500, {"error": str(e)})
             return
 
+        # POST /api/jobs/{job_id}/{action}
+        if len(parts) != 4:
+            self.send_error(404)
+            return
+
+        ref, action = parts[2], parts[3]
         method = self._JOB_ACTIONS.get(action)
         if not method:
             self.send_error(404)

@@ -48,7 +48,7 @@ export default class Jobs {
     }
 
     /** Requests the server to start (or queue) a job of the given type. */
-    static start(jobType) {
+    static start(jobType, args = {}) {
         const handler = this._registry.get(jobType);
         if (!handler) return;
         if (this._running.has(jobType)) return; // already active or queued
@@ -56,7 +56,7 @@ export default class Jobs {
         // Fire onStart immediately so the UI reacts before the round-trip.
         handler.onStart();
 
-        this._startJob(jobType)
+        this._startJob(jobType, args)
             .then(({ job }) => {
                 // Map jobType → job_id so we can match terminal snapshots.
                 this._running.set(jobType, job.job_id);

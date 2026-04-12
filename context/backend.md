@@ -13,7 +13,7 @@ Long-running work runs as a cooperatively-checkpointed job. Pause, resume, and a
 Job control is a small POST API:
 
 ```
-POST /api/jobs/{job_type}/start
+POST /api/jobs/start
 POST /api/jobs/{job_id}/pause
 POST /api/jobs/{job_id}/resume
 POST /api/jobs/{job_id}/abort

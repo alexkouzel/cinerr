@@ -43,7 +43,7 @@ def _make_manager_with_types():
     global _exclusive_barrier
     _exclusive_barrier = threading.Event()
 
-    def _exclusive_builder():
+    def _exclusive_builder(args):
         barrier = _exclusive_barrier
 
         def runner(ctx):
@@ -55,7 +55,7 @@ def _make_manager_with_types():
         return Job("exclusive", runner)
 
     mgr = JobManager()
-    mgr.register("fast", lambda: Job("fast", _noop_runner), allow_multiple=True)
+    mgr.register("fast", lambda args: Job("fast", _noop_runner), allow_multiple=True)
     mgr.register(
         "exclusive",
         _exclusive_builder,
@@ -269,7 +269,7 @@ class TestJobManager:
         mgr = JobManager()
         barrier = threading.Event()
 
-        def slow_builder():
+        def slow_builder(args):
             def runner(ctx):
                 barrier.wait(timeout=5)
                 return {}
@@ -312,8 +312,8 @@ class TestJobManager:
 
     def test_bidirectional_conflicts(self):
         mgr = JobManager()
-        mgr.register("a", lambda: Job("a", _slow_runner(3, 0.02)), conflicts_with=["b"])
-        mgr.register("b", lambda: Job("b", _slow_runner(3, 0.02)))
+        mgr.register("a", lambda args: Job("a", _slow_runner(3, 0.02)), conflicts_with=["b"])
+        mgr.register("b", lambda args: Job("b", _slow_runner(3, 0.02)))
 
         job_a, _ = mgr.start("a")
         job_b, _ = mgr.start("b")
@@ -344,7 +344,7 @@ class TestJobManager:
         mgr = JobManager()
         mgr.register(
             "fail",
-            lambda: Job("fail", lambda ctx: (_ for _ in ()).throw(RuntimeError("x"))),
+            lambda args: Job("fail", lambda ctx: (_ for _ in ()).throw(RuntimeError("x"))),
         )
 
         job, _ = mgr.start("fail")
