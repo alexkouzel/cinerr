@@ -47,7 +47,7 @@ CSV_HEADER = [
 ]
 
 
-_BYTES_PER_GIB = 1024 ** 3
+_BYTES_PER_GIB = 1024**3
 
 
 def _format_size(size_bytes):
@@ -260,7 +260,9 @@ def run_scan(on_progress: callable, checkpoint: callable) -> dict:
 
     os.replace(CSV_TMP_FILE, CSV_FILE)
 
-    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%d %H:%M UTC"
+    )
     with open(LAST_SCAN_FILE, "w", encoding="utf-8") as f:
         f.write(timestamp)
 

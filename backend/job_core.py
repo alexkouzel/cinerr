@@ -95,7 +95,11 @@ class Job:
 
             self._cond_transition.notify_all()
 
-        print(f"[job] {self.job_type}: {previous} -> {status_to}", file=sys.stderr, flush=True)
+        print(
+            f"[job] {self.job_type}: {previous} -> {status_to}",
+            file=sys.stderr,
+            flush=True,
+        )
         self._notify_snapshot()
         return True
 
@@ -191,7 +195,11 @@ class Job:
                     terminal_status = "completed"
                     self._result = result if isinstance(result, dict) else None
 
-            print(f"[job] {self.job_type} completed: {result}", file=sys.stderr, flush=True)
+            print(
+                f"[job] {self.job_type} completed: {result}",
+                file=sys.stderr,
+                flush=True,
+            )
 
         except AbortRequested:
             terminal_status = "aborted"
@@ -302,7 +310,11 @@ class JobManager:
         # (manager → job). Safe because a terminal status never changes.
         snap = job.snapshot()
 
-        print(f'[job-manager] {job.job_type} {snap["status"]}', file=sys.stderr, flush=True)
+        print(
+            f"[job-manager] {job.job_type} {snap['status']}",
+            file=sys.stderr,
+            flush=True,
+        )
         jobs_to_start = []
 
         with self._lock:

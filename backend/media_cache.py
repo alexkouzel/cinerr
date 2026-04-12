@@ -55,7 +55,9 @@ def clean_cache() -> dict:
         if media_file is None:
             stale = True
         else:
-            stale = os.path.getmtime(cache_file) < os.path.getmtime(abs_media_path(media_file))
+            stale = os.path.getmtime(cache_file) < os.path.getmtime(
+                abs_media_path(media_file)
+            )
         if stale:
             try:
                 os.remove(cache_file)

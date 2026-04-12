@@ -1,6 +1,5 @@
 """Tests for media_cache.py — caching and cache cleanup."""
 
-import os
 import time
 
 import media_cache

@@ -17,19 +17,17 @@ async function loadStats() {
         ]);
         console.log('[index] stats loaded');
         const vm = Stats.buildViewModel(csvText);
-        if (vm.summary.totalFiles === 0) {
-            StatsPanel.showError();
-            ActionBar.setDisabled('browse-media-btn', true);
+        if (vm.summary.totalFiles > 0) {
+            StatsPanel.setLastScan(lastScan);
+            StatsPanel.setViewModel(vm);
+            ActionBar.setDisabled('browse-media-btn', false);
             return;
         }
-        StatsPanel.setLastScan(lastScan);
-        StatsPanel.renderViewModel(vm);
-        ActionBar.setDisabled('browse-media-btn', false);
     } catch (err) {
         console.error('[index] failed to load stats:', err);
-        StatsPanel.showError();
-        ActionBar.setDisabled('browse-media-btn', true);
     }
+    StatsPanel.setViewModel(null);
+    ActionBar.setDisabled('browse-media-btn', true);
 }
 
 
@@ -45,11 +43,11 @@ async function bootstrap() {
     Jobs.init({startJob: (type) => Api.startJob(type)});
 
     Jobs.register('scan-media', {
-        onStart:   () => { ActionBar.setLoading('scan-media-btn', true); StatsPanel.showScanning(); },
+        onStart:   () => { ActionBar.setLoading('scan-media-btn', true); StatsPanel.setScanning(true); },
         onDone:    () => { ActionBar.setLoading('scan-media-btn', false); },
-        onSuccess: () => { Notify.scanComplete(); void loadStats(); },
-        onAbort:   () => { Notify.scanAborted(); StatsPanel.revertScanning(); },
-        onFailure: () => { Notify.scanFailed(); StatsPanel.revertScanning(); },
+        onSuccess: async () => { Notify.scanComplete(); await loadStats(); StatsPanel.setScanning(false); },
+        onAbort:   () => { Notify.scanAborted(); StatsPanel.setScanning(false); },
+        onFailure: () => { Notify.scanFailed(); StatsPanel.setScanning(false); },
     });
 
     ActionBar.bindHandlers({
@@ -70,10 +68,9 @@ async function bootstrap() {
     JobsPanel.subscribe((event) => Jobs.handleEvent(event));
     JobsPanel.subscribe(({counts}) => Tabs.setJobBadges(counts));
     JobsPanel.subscribe(({type}) => {
-        if (type === 'bootstrap') {
-            ActionBar.show();
-            if (!Jobs.isActive('scan-media')) void loadStats();
-        }
+        if (type !== 'bootstrap') return;
+        ActionBar.show();
+        void loadStats();
     });
 }
 

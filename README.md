@@ -28,8 +28,8 @@ Cinerr fills that gap.
 
 ## Features
 
-- **Stats Dashboard** - A full summary of your library with tips to reclaim disk space.
-- **Media Browser** - Detailed metadata for every file in your library, all in one searchable table.
+- **Stats Dashboard** - Codecs, resolutions, HDR formats, audio formats, and estimated space savings from transcoding, all in one view.
+- **Media Browser** - Per-file metadata in a searchable, filterable table.
 - **Smart Scanning** - Per-file caching that makes every rescan nearly instant.
 - **Live Progress** - Pause, resume, or abort long-running jobs like scans at any time.
 

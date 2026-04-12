@@ -98,9 +98,9 @@ class Handler(BaseHTTPRequestHandler):
             JOB_MANAGER.unsubscribe(listener_id)
 
     _JOB_ACTIONS = {
-        "pause":   JobManager.pause,
-        "resume":  JobManager.resume,
-        "abort":   JobManager.abort,
+        "pause": JobManager.pause,
+        "resume": JobManager.resume,
+        "abort": JobManager.abort,
         "dismiss": JobManager.dismiss,
     }
 
@@ -168,12 +168,20 @@ class Handler(BaseHTTPRequestHandler):
         root_real = os.path.realpath(root)
         file_path = os.path.realpath(os.path.join(root_real, rel.lstrip("/")))
         if file_path != root_real and not file_path.startswith(root_real + os.sep):
-            print(f"[server] attempted directory traversal: {url_path}", file=sys.stderr, flush=True)
+            print(
+                f"[server] attempted directory traversal: {url_path}",
+                file=sys.stderr,
+                flush=True,
+            )
             self.send_error(403)
             return
 
         if not os.path.isfile(file_path):
-            print(f"[server] static file not found: {file_path}", file=sys.stderr, flush=True)
+            print(
+                f"[server] static file not found: {file_path}",
+                file=sys.stderr,
+                flush=True,
+            )
             self.send_error(404)
             return
 

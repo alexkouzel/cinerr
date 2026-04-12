@@ -3,12 +3,13 @@
 import threading
 import time
 
-from job_core import Job, JobManager, AbortRequested
+from job_core import Job, JobManager
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _noop_runner(ctx):
     return {"ok": True}
@@ -16,12 +17,14 @@ def _noop_runner(ctx):
 
 def _slow_runner(steps=10, step_time=0.05):
     """Returns a runner that takes `steps` checkpoints with a delay."""
+
     def runner(ctx):
         for i in range(steps):
             ctx.checkpoint()
             time.sleep(step_time)
             ctx.set_progress(i + 1)
         return {}
+
     return runner
 
 
@@ -42,22 +45,30 @@ def _make_manager_with_types():
 
     def _exclusive_builder():
         barrier = _exclusive_barrier
+
         def runner(ctx):
             barrier.wait(timeout=5)
             for i in range(3):
                 ctx.checkpoint()
             return {}
+
         return Job("exclusive", runner)
 
     mgr = JobManager()
     mgr.register("fast", lambda: Job("fast", _noop_runner), allow_multiple=True)
-    mgr.register("exclusive", _exclusive_builder, conflicts_with=["exclusive"], allow_multiple=True)
+    mgr.register(
+        "exclusive",
+        _exclusive_builder,
+        conflicts_with=["exclusive"],
+        allow_multiple=True,
+    )
     return mgr
 
 
 # ---------------------------------------------------------------------------
 # Job lifecycle
 # ---------------------------------------------------------------------------
+
 
 class TestJobLifecycle:
     def test_start_and_complete(self):
@@ -98,6 +109,10 @@ class TestJobLifecycle:
         barrier.set()
         job._thread.join(timeout=2)
         assert job.snapshot()["status"] == "completed"
+
+        statuses = [e["job"]["status"] for e in events]
+        assert "paused" in statuses
+        assert statuses.index("paused") < statuses.index("completed")
 
     def test_abort_running(self):
         def runner(ctx):
@@ -145,9 +160,9 @@ class TestJobLifecycle:
 
     def test_invalid_transitions_return_false(self):
         job = Job("test", _noop_runner)
-        assert not job.pause()     # can't pause idle
-        assert not job.resume()    # can't resume idle
-        assert not job.abort()     # can't abort idle (not queued/running/paused)
+        assert not job.pause()  # can't pause idle
+        assert not job.resume()  # can't resume idle
+        assert not job.abort()  # can't abort idle (not queued/running/paused)
 
     def test_set_progress(self):
         barrier = threading.Event()
@@ -233,6 +248,7 @@ class TestJobLifecycle:
 # JobManager
 # ---------------------------------------------------------------------------
 
+
 class TestJobManager:
     def test_start_and_complete(self):
         mgr = _make_manager_with_types()
@@ -257,6 +273,7 @@ class TestJobManager:
             def runner(ctx):
                 barrier.wait(timeout=5)
                 return {}
+
             return Job("single", runner)
 
         mgr.register("single", slow_builder, allow_multiple=False)
@@ -325,7 +342,10 @@ class TestJobManager:
 
     def test_dismiss_failed_job(self):
         mgr = JobManager()
-        mgr.register("fail", lambda: Job("fail", lambda ctx: (_ for _ in ()).throw(RuntimeError("x"))))
+        mgr.register(
+            "fail",
+            lambda: Job("fail", lambda ctx: (_ for _ in ()).throw(RuntimeError("x"))),
+        )
 
         job, _ = mgr.start("fail")
         job._thread.join(timeout=2)

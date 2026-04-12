@@ -1,24 +1,24 @@
 /**
- * Renders the stats tab: summary counters, stat groups with bar charts,
- * and estimated savings sections.
+ * Renders the stats tab.
+ *
+ * State is owned internally as (_vm, _scanning). Callers push updates via
+ * setViewModel() and setScanning(); _render() reconciles the DOM as a pure
+ * function of current state, so updates can arrive in any order.
  */
 export default class StatsPanel {
 
     // --- public ---
 
-    /** Renders the full stats view from a view model produced by Stats.buildViewModel(). */
-    static renderViewModel(vm) {
-        this._renderSummary(vm.summary);
+    /** Sets the current view model (or null for no data) and re-renders. */
+    static setViewModel(vm) {
+        this._vm = vm;
+        this._render();
+    }
 
-        for (const [id, key] of this._GROUPS) {
-            this._renderGroup(id, vm.groups[key].counts, vm.groups[key].total);
-        }
-
-        for (const [groupId, containerId, key] of this._SAVINGS) {
-            this._renderSavings(groupId, containerId, vm.savings[key].entries, vm.savings[key].totalGiB);
-        }
-
-        this._showLoaded();
+    /** Sets the scanning flag and re-renders. */
+    static setScanning(on) {
+        this._scanning = on;
+        this._render();
     }
 
     /** Sets the "last scan" timestamp in the summary bar. */
@@ -26,39 +26,12 @@ export default class StatsPanel {
         document.getElementById('s-lastscan').textContent = timestamp.trim();
     }
 
-    /** Shows the scanning state while an update job is running, but only if no stats are currently displayed. */
-    static showScanning() {
-        this._statsWereVisible = !document.getElementById('stats').hidden;
-        if (this._statsWereVisible) return;
-        document.getElementById('stats-placeholder').hidden = false;
-        document.getElementById('stats-loading').hidden = true;
-        document.getElementById('stats-error').hidden = true;
-        document.getElementById('stats-scanning').hidden = false;
-    }
+    // --- private: state ---
 
-    /** Reverts to the state before showScanning() was called. */
-    static revertScanning() {
-        document.getElementById('stats-scanning').hidden = true;
-        if (this._statsWereVisible) {
-            document.getElementById('stats-placeholder').hidden = true;
-            document.getElementById('stats').hidden = false;
-        } else {
-            this.showError();
-        }
-    }
-
-    /** Shows the error state when CSV data can't be loaded. */
-    static showError() {
-        document.getElementById('stats').hidden = true;
-        document.getElementById('stats-placeholder').hidden = false;
-        document.getElementById('stats-loading').hidden = true;
-        document.getElementById('stats-error').hidden = false;
-        document.getElementById('stats-scanning').hidden = true;
-    }
+    static _vm = null;
+    static _scanning = false;
 
     // --- private: config ---
-
-    static _statsWereVisible = false;
 
     /** Maps DOM container IDs to view model group keys. */
     static _GROUPS = [
@@ -84,6 +57,33 @@ export default class StatsPanel {
     static _SAVINGS_THRESHOLD = 0.10;
 
     // --- private: rendering ---
+
+    /** Reconciles the DOM to reflect current (_vm, _scanning) state. */
+    static _render() {
+        if (this._vm) {
+            this._renderStats(this._vm);
+            document.getElementById('stats').hidden = false;
+            document.getElementById('stats-placeholder').hidden = true;
+            return;
+        }
+        document.getElementById('stats').hidden = true;
+        document.getElementById('stats-placeholder').hidden = false;
+        document.getElementById('stats-loading').hidden = true;
+        document.getElementById('stats-error').hidden = this._scanning;
+        document.getElementById('stats-scanning').hidden = !this._scanning;
+    }
+
+    static _renderStats(vm) {
+        this._renderSummary(vm.summary);
+
+        for (const [id, key] of this._GROUPS) {
+            this._renderGroup(id, vm.groups[key].counts, vm.groups[key].total);
+        }
+
+        for (const [groupId, containerId, key] of this._SAVINGS) {
+            this._renderSavings(groupId, containerId, vm.savings[key].entries, vm.savings[key].totalGiB);
+        }
+    }
 
     static _renderSummary({totalFiles, totalSize, totalDuration}) {
         document.getElementById('s-total').textContent = totalFiles;
@@ -143,11 +143,6 @@ export default class StatsPanel {
                 </div>
               </div>`;
         }).join('');
-    }
-
-    static _showLoaded() {
-        document.getElementById('stats-placeholder').hidden = true;
-        document.getElementById('stats').hidden = false;
     }
 
     // --- private: formatters ---

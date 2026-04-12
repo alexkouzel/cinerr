@@ -16,6 +16,7 @@ from media_scan import (
 # _format_size
 # ---------------------------------------------------------------------------
 
+
 class TestFormatSize:
     def test_normal(self):
         assert _format_size("1073741824") == "1.0 GiB"
@@ -37,6 +38,7 @@ class TestFormatSize:
 # _format_duration
 # ---------------------------------------------------------------------------
 
+
 class TestFormatDuration:
     def test_normal(self):
         assert _format_duration("3661") == "01:01:01"
@@ -57,6 +59,7 @@ class TestFormatDuration:
 # ---------------------------------------------------------------------------
 # _map_hdr
 # ---------------------------------------------------------------------------
+
 
 class TestMapHdr:
     def test_dolby_vision(self):
@@ -81,6 +84,7 @@ class TestMapHdr:
 # ---------------------------------------------------------------------------
 # _format_audio_track
 # ---------------------------------------------------------------------------
+
 
 class TestFormatAudioTrack:
     def test_full_track(self):
@@ -113,6 +117,7 @@ class TestFormatAudioTrack:
 # _format_text_track
 # ---------------------------------------------------------------------------
 
+
 class TestFormatTextTrack:
     def test_srt(self):
         track = {"Language": "english", "Format": "UTF-8"}
@@ -138,15 +143,16 @@ class TestFormatTextTrack:
 # _extract_row
 # ---------------------------------------------------------------------------
 
+
 def _make_mediainfo_json(*, general=None, video=None, audio=None, text=None):
     tracks = []
     if general is not None:
         tracks.append({"@type": "General", **general})
     if video is not None:
         tracks.append({"@type": "Video", **video})
-    for a in (audio or []):
+    for a in audio or []:
         tracks.append({"@type": "Audio", **a})
-    for t in (text or []):
+    for t in text or []:
         tracks.append({"@type": "Text", **t})
     return json.dumps({"media": {"track": tracks}})
 
@@ -165,19 +171,23 @@ class TestExtractRow:
             },
         )
         row = _extract_row(js, "movies/test.mkv")
-        assert row[0] == "test.mkv"       # name
-        assert row[1] == "/movies"         # path
-        assert "GiB" in row[2]             # size
-        assert row[4] == "HEVC"            # format
-        assert row[5] == "Main 10"         # profile
+        assert row[0] == "test.mkv"  # name
+        assert row[1] == "/movies"  # path
+        assert "GiB" in row[2]  # size
+        assert row[4] == "HEVC"  # format
+        assert row[5] == "Main 10"  # profile
 
     def test_path_root(self):
-        js = _make_mediainfo_json(general={"FileSize": "100", "Duration": "10"}, video={"Format": "AVC"})
+        js = _make_mediainfo_json(
+            general={"FileSize": "100", "Duration": "10"}, video={"Format": "AVC"}
+        )
         row = _extract_row(js, "test.mkv")
         assert row[1] == "/"
 
     def test_path_nested(self):
-        js = _make_mediainfo_json(general={"FileSize": "100", "Duration": "10"}, video={"Format": "AVC"})
+        js = _make_mediainfo_json(
+            general={"FileSize": "100", "Duration": "10"}, video={"Format": "AVC"}
+        )
         row = _extract_row(js, "movies/action/test.mkv")
         assert row[1] == "/movies/action"
 
@@ -198,6 +208,6 @@ class TestExtractRow:
             ],
         )
         row = _extract_row(js, "test.mkv")
-        assert "en" in row[12]     # audio_langs
+        assert "en" in row[12]  # audio_langs
         assert "ru" in row[12]
-        assert "en" in row[13]     # subtitle_langs
+        assert "en" in row[13]  # subtitle_langs
