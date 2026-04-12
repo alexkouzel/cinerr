@@ -1,28 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import Media from '../../../public/shared/scripts/services/media.js';
 import Stats from '../../../public/shared/scripts/services/stats.js';
-
-describe('Stats._parseCSV', () => {
-    test('parses RFC 4180 quoting: quoted commas, escaped quotes, CRLF endings', () => {
-        const text = 'a,b,c\r\n"hello, world","he said ""hi""",x\r\n';
-        assert.deepEqual(Stats._parseCSV(text), [
-            { a: 'hello, world', b: 'he said "hi"', c: 'x' },
-        ]);
-    });
-
-    test('handles structural edges: short final row, trailing blank line, empty input', () => {
-        // No trailing newline forces the final-flush branch.
-        // Final row has fewer fields than headers; missing slot falls back to ''.
-        assert.deepEqual(Stats._parseCSV('a,b,c\n1,2,3\n4,5'), [
-            { a: '1', b: '2', c: '3' },
-            { a: '4', b: '5', c: '' },
-        ]);
-        // Trailing blank line is skipped.
-        assert.deepEqual(Stats._parseCSV('a,b\n1,2\n\n'), [{ a: '1', b: '2' }]);
-        // Empty input yields no rows.
-        assert.deepEqual(Stats._parseCSV(''), []);
-    });
-});
 
 describe('Stats._parseAudioTracks', () => {
     test('parses tracks with and without flags, normalizes missing values', () => {
@@ -140,28 +119,28 @@ describe('Stats._estimateAudioSavings', () => {
     });
 });
 
-describe('Stats.buildViewModel', () => {
-    test('end-to-end: parses CSV, groups, summarizes, and estimates savings', () => {
+describe('Stats.build', () => {
+    test('groups, summarizes, and estimates savings', () => {
         const csv = [
             'name,path,size,duration,format,profile,hdr,bitrate,framerate,resolution,audios,subtitles,audio_langs,subtitle_langs',
             'film.mkv,/movies/film.mkv,10 GiB,02:00:00,HEVC,-,HDR10,5000 kb/s,24,3840x2160,"[en, AC-3, 640 kb/s, 6ch]","[en, UTF-8, (default)]",en,en',
             'show.mkv,/shows/s01/show.mkv,5 GiB,00:45:00,AVC,-,-,3000 kb/s,24,1920x1080,"[ja, AAC, 128 kb/s, 2ch]",,ja,',
         ].join('\n') + '\n';
 
-        const vm = Stats.buildViewModel(csv);
+        const stats = Stats.build(Media._parseCSV(csv));
 
-        assert.equal(vm.summary.totalFiles, 2);
-        assert.equal(vm.summary.totalSize, '15 GiB');
-        assert.equal(vm.summary.totalDuration, '2h 45m');
+        assert.equal(stats.summary.totalFiles, 2);
+        assert.equal(stats.summary.totalSize, '15 GiB');
+        assert.equal(stats.summary.totalDuration, '2h 45m');
 
-        assert.deepEqual(vm.groups.path.counts,       { '/movies': 1, '/shows': 1 });
-        assert.deepEqual(vm.groups.resolution.counts, { '4K': 1, '1080p': 1 });
-        assert.deepEqual(vm.groups.format.counts,     { HEVC: 1, AVC: 1 });
-        assert.deepEqual(vm.groups.hdr.counts,        { HDR10: 1, SDR: 1 });
-        assert.deepEqual(vm.groups.audioLangs.counts, { en: 1, ja: 1 });
-        assert.deepEqual(vm.groups.subtitleLangs.counts, { en: 1 });
-        assert.equal(vm.groups.audio.total, 2);
+        assert.deepEqual(stats.groups.path.counts,       { '/movies': 1, '/shows': 1 });
+        assert.deepEqual(stats.groups.resolution.counts, { '4K': 1, '1080p': 1 });
+        assert.deepEqual(stats.groups.format.counts,     { HEVC: 1, AVC: 1 });
+        assert.deepEqual(stats.groups.hdr.counts,        { HDR10: 1, SDR: 1 });
+        assert.deepEqual(stats.groups.audioLangs.counts, { en: 1, ja: 1 });
+        assert.deepEqual(stats.groups.subtitleLangs.counts, { en: 1 });
+        assert.equal(stats.groups.audio.total, 2);
 
-        assert.ok(vm.savings.video.totalGiB > 0);
+        assert.ok(stats.savings.video.totalGiB > 0);
     });
 });

@@ -3,6 +3,7 @@ import StatsPanel from './shared/scripts/components/stats-panel.js';
 import Tabs from './shared/scripts/components/tabs.js';
 import JobsPanel from './shared/scripts/components/jobs-panel.js';
 import Api from './shared/scripts/services/api.js';
+import Media from './shared/scripts/services/media.js';
 import Stats from './shared/scripts/services/stats.js';
 import Jobs from './shared/scripts/services/jobs.js';
 import Notify from './shared/scripts/services/notify.js';
@@ -11,22 +12,23 @@ import Toast from './shared/scripts/components/toast.js';
 async function loadStats() {
     console.log('[index] loading stats');
     try {
-        const [csvText, lastScan] = await Promise.all([
+        const [mediaCsv, lastScan] = await Promise.all([
             Api.getMediaCsv(),
             Api.getLastScan().catch(() => 'unavailable'),
         ]);
         console.log('[index] stats loaded');
-        const vm = Stats.buildViewModel(csvText);
-        if (vm.summary.totalFiles > 0) {
-            StatsPanel.setLastScan(lastScan);
-            StatsPanel.setViewModel(vm);
+        Media.load(mediaCsv, lastScan);
+        const stats = Stats.build(Media.getFiles());
+        if (stats.summary.totalFiles > 0) {
+            StatsPanel.setLastScan(Media.getLastScan());
+            StatsPanel.setStats(stats);
             ActionBar.setDisabled('browse-media-btn', false);
             return;
         }
     } catch (err) {
         console.error('[index] failed to load stats:', err);
     }
-    StatsPanel.setViewModel(null);
+    StatsPanel.setStats(null);
     ActionBar.setDisabled('browse-media-btn', true);
 }
 

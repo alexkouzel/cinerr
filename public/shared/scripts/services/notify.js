@@ -1,12 +1,7 @@
-/**
- * Centralized user-facing toast notifications.
- * All message strings live here, no other file should call Toast directly.
- */
 export default class Notify {
 
     // --- public ---
 
-    /** @param {(msg: string, isError?: boolean) => void} showFn */
     static init(showFn) {
         this._show = showFn;
     }

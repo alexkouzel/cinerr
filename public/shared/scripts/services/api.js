@@ -1,16 +1,11 @@
-/**
- * HTTP client for the media-manager server.
- */
 export default class Api {
 
-    // --- public: config ---
+    // --- public ---
 
     static async getConfig() {
         const response = await fetch(`${this._BASE_URL}/config`);
         return this._parseResponse(response);
     }
-
-    // --- public: job actions ---
 
     static async startJob(jobType, args = {}) {
         const response = await fetch(`${this._BASE_URL}/jobs/start`, {
@@ -37,16 +32,12 @@ export default class Api {
         return this._postJob(`${jobId}/dismiss`);
     }
 
-    /** Opens an SSE stream for real-time job updates. Returns a close function. */
     static openJobsStream(onMessage, onError) {
         console.log('[api] opening jobs stream');
         const source = new EventSource(`${this._BASE_URL}/jobs/stream`);
         source.onmessage = (event) => {
-            // Silently ignore malformed payloads to keep the stream alive.
-            try {
-                onMessage(JSON.parse(event.data));
-            } catch {
-            }
+            // Ignore malformed payloads to keep the stream alive.
+            try { onMessage(JSON.parse(event.data)); } catch {}
         };
         if (onError) {
             source.onerror = onError;
@@ -56,8 +47,6 @@ export default class Api {
             source.close();
         };
     }
-
-    // --- public: data ---
 
     static async getMediaCsv() {
         const response = await fetch('/data/media.csv');
@@ -71,8 +60,6 @@ export default class Api {
         const response = await fetch('/data/last-scan');
         return response.text();
     }
-
-    // --- public: debug ---
 
     static async deleteMediaCsv() {
         const response = await fetch(`${this._BASE_URL}/debug/csv`, {method: 'DELETE'});
@@ -88,7 +75,6 @@ export default class Api {
         return this._parseResponse(response);
     }
 
-    /** Parses a JSON response body. Throws on non-2xx with the server's error message. */
     static async _parseResponse(response) {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {

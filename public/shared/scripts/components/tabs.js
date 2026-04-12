@@ -1,12 +1,7 @@
-/**
- * Two-tab navigation between stats and jobs panels.
- * Reads tab targets from [data-tab-target] attributes in the DOM.
- */
 export default class Tabs {
 
     // --- public ---
 
-    /** Attaches a delegated click listener on the tab navigation bar. */
     static bind() {
         document.getElementById('tab-nav')
             .addEventListener('click', (e) => {
@@ -19,7 +14,6 @@ export default class Tabs {
             });
     }
 
-    /** Updates the coloured count badges on the JOBS tab button. */
     static setJobBadges({running = 0, paused = 0, failed = 0, queued = 0} = {}) {
         const container = document.getElementById('jobs-counts');
         if (!container) return;
@@ -31,7 +25,6 @@ export default class Tabs {
         container.innerHTML = parts.join(' ');
     }
 
-    /** Switches the visible panel and updates button states. */
     static setActive(name) {
         this._active = name;
 

@@ -1,17 +1,4 @@
 /**
- * Job lifecycle orchestrator.
- *
- * Tracks registered job types and their UI hooks (onStart, onDone,
- * onSuccess, onFailure). Receives SSE events from the jobs panel
- * and dispatches to the appropriate handler.
- *
- * Lifecycle: register → start → onStart → [server runs] → onDone → onSuccess / onAbort / onFailure
- *
- * Queueing is fully server-side. start() fires onStart immediately for
- * responsive UI feedback, regardless of whether the job will run now or wait.
- */
-
-/**
  * @typedef {{
  *     job_id: string,
  *     job_type: string,
@@ -32,22 +19,18 @@ export default class Jobs {
 
     // --- public ---
 
-    /** @param {{startJob: function}} callbacks */
     static init({ startJob }) {
         this._startJob = startJob;
     }
 
-    /** Registers a job type with its lifecycle callbacks. */
     static register(jobType, { onStart, onDone, onSuccess, onAbort, onFailure }) {
         this._registry.set(jobType, { onStart, onDone, onSuccess, onAbort, onFailure });
     }
 
-    /** Returns true if a job of the given type is currently active (running, paused, or queued). */
     static isActive(jobType) {
         return this._running.has(jobType);
     }
 
-    /** Requests the server to start (or queue) a job of the given type. */
     static start(jobType, args = {}) {
         const handler = this._registry.get(jobType);
         if (!handler) return;
@@ -58,9 +41,8 @@ export default class Jobs {
 
         this._startJob(jobType, args)
             .then(({ job }) => {
-                // Map jobType → job_id so we can match terminal snapshots.
                 this._running.set(jobType, job.job_id);
-                // A terminal SSE event may have arrived before this resolved.
+                // Terminal SSE event may have arrived before this resolved.
                 const pending = this._pendingTerminals.get(job.job_id);
                 if (pending) {
                     this._pendingTerminals.delete(job.job_id);
@@ -74,7 +56,6 @@ export default class Jobs {
             });
     }
 
-    /** Handles an SSE event forwarded from the jobs panel. */
     static handleEvent(event) {
         if (!event) return;
 
@@ -101,7 +82,6 @@ export default class Jobs {
     static _TERMINAL_STATUSES = new Set(['completed', 'failed', 'aborted']);
     static _ACTIVE_STATUSES = new Set(['running', 'paused', 'queued']);
 
-    /** Calls onDone (always), then onSuccess, onAbort, or onFailure based on status. */
     static _finish(handler, status, result) {
         if (handler.onDone) handler.onDone();
         if (status === 'completed' && handler.onSuccess) {
@@ -120,7 +100,7 @@ export default class Jobs {
     static _onBootstrap(jobs) {
         for (const job of jobs) {
             if (!this._ACTIVE_STATUSES.has(job.status)) continue;
-            if (this._running.has(job.job_type)) continue; // already tracking
+            if (this._running.has(job.job_type)) continue;
 
             const handler = this._registry.get(job.job_type);
             if (!handler) continue;
@@ -131,10 +111,6 @@ export default class Jobs {
         }
     }
 
-    /** 
-     * When a tracked job reaches a terminal status, fire the lifecycle callbacks.
-     * @param {JobSnapshot} job
-     */
     static _onSnapshot(job) {
         if (!this._TERMINAL_STATUSES.has(job.status)) return;
 
@@ -147,8 +123,7 @@ export default class Jobs {
             return;
         }
 
-        // job_id not yet in _running — startJob() hasn't resolved yet.
-        // Buffer so start()'s .then() can pick it up.
+        // startJob() hasn't resolved yet — buffer so .then() can replay it.
         this._pendingTerminals.set(job.job_id, job);
     }
 }

@@ -1,39 +1,26 @@
-/**
- * Renders the stats tab.
- *
- * State is owned internally as (_vm, _scanning). Callers push updates via
- * setViewModel() and setScanning(); _render() reconciles the DOM as a pure
- * function of current state, so updates can arrive in any order.
- */
 export default class StatsPanel {
 
     // --- public ---
 
-    /** Sets the current view model (or null for no data) and re-renders. */
-    static setViewModel(vm) {
-        this._vm = vm;
+    static setStats(stats) {
+        this._stats = stats;
         this._render();
     }
 
-    /** Sets the scanning flag and re-renders. */
-    static setScanning(on) {
-        this._scanning = on;
+    static setScanning(scanning) {
+        this._scanning = scanning;
         this._render();
     }
 
-    /** Sets the "last scan" timestamp in the summary bar. */
     static setLastScan(timestamp) {
         document.getElementById('s-lastscan').textContent = timestamp.trim();
     }
 
-    // --- private: state ---
+    // --- private ---
 
-    static _vm = null;
+    static _stats = null;
     static _scanning = false;
 
-    // --- private: config ---
-
-    /** Maps DOM container IDs to view model group keys. */
     static _GROUPS = [
         ['g-path', 'path'],
         ['g-resolution', 'resolution'],
@@ -44,7 +31,6 @@ export default class StatsPanel {
         ['g-subtitle-langs', 'subtitleLangs'],
     ];
 
-    /** Maps DOM IDs to view model savings keys. [groupId, containerId, vmKey] */
     static _SAVINGS = [
         ['video-savings-group', 'g-video-savings', 'video'],
         ['audio-savings-group', 'g-audio-savings', 'audio'],
@@ -53,15 +39,12 @@ export default class StatsPanel {
     /** Labels pushed to the end of sorted stat groups (e.g. unknown/missing values). */
     static _TAIL_LABELS = ['-'];
 
-    /** Savings entries below this share of total are hidden. */
+    /** Savings below this share of total are hidden. */
     static _SAVINGS_THRESHOLD = 0.10;
 
-    // --- private: rendering ---
-
-    /** Reconciles the DOM to reflect current (_vm, _scanning) state. */
     static _render() {
-        if (this._vm) {
-            this._renderStats(this._vm);
+        if (this._stats) {
+            this._renderStats(this._stats);
             document.getElementById('stats').hidden = false;
             document.getElementById('stats-placeholder').hidden = true;
             return;
@@ -73,15 +56,15 @@ export default class StatsPanel {
         document.getElementById('stats-scanning').hidden = !this._scanning;
     }
 
-    static _renderStats(vm) {
-        this._renderSummary(vm.summary);
+    static _renderStats(stats) {
+        this._renderSummary(stats.summary);
 
         for (const [id, key] of this._GROUPS) {
-            this._renderGroup(id, vm.groups[key].counts, vm.groups[key].total);
+            this._renderGroup(id, stats.groups[key].counts, stats.groups[key].total);
         }
 
         for (const [groupId, containerId, key] of this._SAVINGS) {
-            this._renderSavings(groupId, containerId, vm.savings[key].entries, vm.savings[key].totalGiB);
+            this._renderSavings(groupId, containerId, stats.savings[key].entries, stats.savings[key].totalGiB);
         }
     }
 
@@ -91,11 +74,10 @@ export default class StatsPanel {
         document.getElementById('s-duration').textContent = totalDuration;
     }
 
-    /** Renders a stat group: sorted rows with label, count, and a percentage bar. */
     static _renderGroup(containerId, counts, total) {
         const container = document.getElementById(containerId);
 
-        // Sort by count descending, but push tail labels (like "-") to the end.
+        // Sort by count descending; push tail labels to the end.
         const sorted = Object.entries(counts)
             .sort(([labelA, countA], [labelB, countB]) => {
 
@@ -121,7 +103,6 @@ export default class StatsPanel {
         }).join('');
     }
 
-    /** Renders a savings section, or hides it if no entry exceeds the threshold. */
     static _renderSavings(groupId, containerId, entries, totalGiB) {
         const group = document.getElementById(groupId);
         const visible = entries.filter(e => totalGiB > 0 && (e.maxGiB / totalGiB) >= this._SAVINGS_THRESHOLD);
@@ -144,8 +125,6 @@ export default class StatsPanel {
               </div>`;
         }).join('');
     }
-
-    // --- private: formatters ---
 
     static _formatSizeRange(minGiB, maxGiB) {
         if (minGiB >= 1024 || maxGiB >= 1024) {

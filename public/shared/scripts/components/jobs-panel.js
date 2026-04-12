@@ -1,16 +1,4 @@
 /**
- * Renders the jobs tab: a live-updating list of running, paused, queued, and
- * failed jobs with action buttons (pause/resume/abort/dismiss).
- *
- * Connects to the server via SSE and forwards events to a callback (Jobs.handleEvent).
- *
- * Rendering strategy: rows are keyed by job_id and updated in-place on each
- * render. This prevents hover flicker and ensures button clicks are never
- * swallowed by a mid-click DOM rebuild. A single delegated click listener on
- * the list container handles all button actions.
- */
-
-/**
  * @typedef {{
  *     job_id: string,
  *     job_type: string,
@@ -31,35 +19,21 @@ export default class JobsPanel {
 
     // --- public ---
 
-    /**
-     * Registers a callback invoked after every job event with the current snapshot.
-     * The payload is {type, jobs, counts, ...event-specific fields}.
-     * Returns an unsubscribe function.
-     * @param {function} callback
-     * @returns {function}
-     */
     static subscribe(callback) {
         this._subscribers.add(callback);
         return () => this._subscribers.delete(callback);
     }
 
-    /**
-     * Opens an SSE stream and starts rendering job updates.
-     * @param {{openStream, onPause, onResume, onAbort, onDismiss}} callbacks
-     */
     static startPolling({openStream, onPause, onResume, onAbort, onDismiss}) {
         this._actions = {onPause, onResume, onAbort, onDismiss};
         this.stopPolling();
 
-        // One delegated click listener on the list handles all action buttons.
-        // Attached once; never needs to be re-added after DOM updates.
         if (!this._listenerAttached) {
             document.getElementById('jobs-list').addEventListener('click', this._onActionClick);
             this._listenerAttached = true;
         }
 
         this._closeStream = openStream(this._onStreamEvent, () => {});
-        // Refresh relative timestamps every second without a full re-render.
         this._tickInterval = setInterval(() => this._tickTimes(), 1_000);
     }
 
@@ -86,16 +60,14 @@ export default class JobsPanel {
     /** @type {number | null} */
     static _tickInterval = null;
     static _actions = {};
-    /** job_id → latest snapshot @type {Map<string, JobSnapshot>} */
+    /** @type {Map<string, JobSnapshot>} */
     static _jobs = new Map();
     /**
      * job_id → status at the time an action was sent.
-     * While present, buttons are disabled and snapshots still showing
-     * this status are treated as stale (server hasn't applied the action yet).
      * @type {Map<string, string>}
      */
     static _pending = new Map();
-    /** job_id → row HTMLElement @type {Map<string, HTMLElement>} */
+    /** @type {Map<string, HTMLElement>} */
     static _rowCache = new Map();
     /** Whether the delegated click listener has been attached. */
     static _listenerAttached = false;
@@ -137,13 +109,6 @@ export default class JobsPanel {
         }
     };
 
-    /**
-     * Applies a snapshot to internal state.
-     * - Terminal (completed/aborted) jobs are discarded immediately.
-     * - While a pending action is in flight, we update job data but keep the
-     *   buttons locked until the server reflects the new status.
-     * @param {JobSnapshot} job
-     */
     static _applySnapshot(job) {
         if (this._DONE_STATUSES.has(job.status)) {
             this._jobs.delete(job.job_id);
@@ -151,14 +116,14 @@ export default class JobsPanel {
             return;
         }
 
+        // While an action is in flight, keep buttons locked until the server
+        // reflects the new status.
         const pendingStatus = this._pending.get(job.job_id);
         if (pendingStatus && job.status === pendingStatus) {
-            // Server hasn't applied the action yet — update data, keep lock.
             this._jobs.set(job.job_id, job);
             return;
         }
 
-        // Status changed (or no pending action) — clear the lock.
         this._pending.delete(job.job_id);
         this._jobs.set(job.job_id, job);
     }
@@ -192,7 +157,6 @@ export default class JobsPanel {
 
     // --- private: job actions ---
 
-    /** Delegated click handler for all job action buttons. */
     static _onActionClick = (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn || btn.disabled) return;
@@ -208,10 +172,6 @@ export default class JobsPanel {
         if (fn) this._sendAction(jobId, job.status, fn);
     };
 
-    /**
-     * Sends an API action for a job, disabling its buttons until the server
-     * reflects the change. On failure the pending state is rolled back.
-     */
     static _sendAction(jobId, currentStatus, apiFn) {
         this._pending.set(jobId, currentStatus);
         this._render();
@@ -247,7 +207,6 @@ export default class JobsPanel {
 
         empty.hidden = jobs.length > 0;
 
-        // Remove rows for jobs that are no longer visible.
         const visibleIds = new Set(jobs.map(j => j.job_id));
         for (const [id, el] of this._rowCache) {
             if (!visibleIds.has(id)) {
@@ -256,7 +215,6 @@ export default class JobsPanel {
             }
         }
 
-        // Add or update rows, ensuring DOM order matches the sorted job list.
         jobs.forEach((job, i) => {
             let el = this._rowCache.get(job.job_id);
             if (!el) {
@@ -265,17 +223,11 @@ export default class JobsPanel {
             } else {
                 this._updateRow(el, job);
             }
-            // Insert at the correct position without moving elements that are
-            // already in the right place.
             const sibling = list.children[i] || null;
             if (sibling !== el) list.insertBefore(el, sibling);
         });
     }
 
-    /**
-     * Creates a new row element for a job. Called once per job_id.
-     * @param {JobSnapshot} job
-     */
     static _buildRow(job) {
         const el = document.createElement('div');
         el.dataset.jobId = job.job_id;
@@ -335,17 +287,12 @@ export default class JobsPanel {
         errorEl.textContent = job.error || '';
     }
 
-    /**
-     * Updates action buttons in-place when the action set hasn't changed size,
-     * or rebuilds the actions container only when the set changes.
-     * Updating in-place is what prevents the hover flicker on the pause button.
-     */
+    // Updates in-place to prevent hover flicker; rebuilds only when action set changes.
     static _updateActions(container, job, busy) {
         const actions = this._getActions(job.status);
         const buttons = Array.from(container.querySelectorAll('.job-btn'));
 
         if (buttons.length === actions.length) {
-            // Same buttons — update label, action, and disabled state in-place.
             buttons.forEach((btn, i) => {
                 btn.textContent     = actions[i].label;
                 btn.dataset.action  = actions[i].action;
@@ -353,7 +300,6 @@ export default class JobsPanel {
                 btn.disabled        = busy;
             });
         } else {
-            // Action set changed (e.g. running → failed) — rebuild the container.
             container.innerHTML = '';
             for (const {label, action} of actions) {
                 const btn = document.createElement('button');
@@ -367,7 +313,6 @@ export default class JobsPanel {
         }
     }
 
-    /** Returns the ordered list of {label, action} for a given status. */
     static _getActions(status) {
         if (status === 'running') return [{label: 'PAUSE', action: 'pause'}, {label: 'ABORT', action: 'abort'}];
         if (status === 'paused')  return [{label: 'RESUME', action: 'resume'}, {label: 'ABORT', action: 'abort'}];
@@ -378,7 +323,6 @@ export default class JobsPanel {
 
     // --- private: formatters ---
 
-    /** Converts "scan-media" → "scan media". */
     static _formatJobType(value) {
         return (value || 'unknown').replace(/-/g, ' ');
     }
