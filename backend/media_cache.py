@@ -4,9 +4,9 @@ import hashlib
 import os
 import sys
 
+from config import DATA_DIR
 from media_common import find_media_files, abs_media_path
 
-DATA_DIR = os.getenv("DATA_DIR", "/data")
 CACHE_DIR = os.path.join(DATA_DIR, "cache")
 
 

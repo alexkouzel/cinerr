@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 server.py — HTTP server and API entry point.
 
@@ -22,13 +21,10 @@ import queue
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+from config import DATA_DIR, DEBUG, PORT
 from job_core import JobManager
 import job_types
-from media_cache import DATA_DIR
 from media_scan import CSV_FILE
-
-PORT = int(os.getenv("PORT", "8080"))
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLIC_DIR = os.path.join(BASE_DIR, "public")

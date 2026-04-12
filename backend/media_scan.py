@@ -22,8 +22,9 @@ import sys
 
 from pymediainfo import MediaInfo
 
+from config import DATA_DIR
 from media_common import find_media_files, abs_media_path
-from media_cache import DATA_DIR, clean_cache, get_cached_json, write_cached_json
+from media_cache import clean_cache, get_cached_json, write_cached_json
 
 CSV_FILE = os.path.join(DATA_DIR, "media.csv")
 CSV_TMP_FILE = os.path.join(DATA_DIR, "media.csv.tmp")

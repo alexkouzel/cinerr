@@ -2,7 +2,8 @@
 
 import os
 
-MEDIA_DIR = os.getenv("MEDIA_DIR", "/media")
+from config import MEDIA_DIR
+
 MEDIA_EXTENSIONS = (".mkv", ".avi", ".mp4")
 
 

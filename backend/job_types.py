@@ -8,14 +8,12 @@ Job types:
     - debug-exclusive   10 steps, conflicts with all other debug jobs
 """
 
-import os
 import time
 
+from config import DEBUG
 from job_core import Job
 from media_common import find_media_files
 import media_scan
-
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 JOB_SCAN_MEDIA = "scan-media"
 
