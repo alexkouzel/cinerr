@@ -10,7 +10,7 @@ async function loadStats() {
         fetch('data/last-scan').then(r => r.text()),
     ]);
     StatsPanel.setLastScan(lastScan);
-    StatsPanel.renderViewModel(Stats.buildViewModel(csvText));
+    StatsPanel.setViewModel(Stats.buildViewModel(csvText));
     ActionBar.show();
 }
 
