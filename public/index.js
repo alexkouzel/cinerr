@@ -1,5 +1,6 @@
 import ActionBar from './shared/scripts/components/action-bar.js';
 import StatsPanel from './shared/scripts/components/stats-panel.js';
+import MediaPanel from './shared/scripts/components/media-panel.js';
 import Tabs from './shared/scripts/components/tabs.js';
 import JobsPanel from './shared/scripts/components/jobs-panel.js';
 import Api from './shared/scripts/services/api.js';
@@ -22,14 +23,14 @@ async function loadStats() {
         if (stats.summary.totalFiles > 0) {
             StatsPanel.setLastScan(Media.getLastScan());
             StatsPanel.setStats(stats);
-            ActionBar.setDisabled('browse-media-btn', false);
+            MediaPanel.setFiles(Media.getFiles());
             return;
         }
     } catch (err) {
         console.error('[index] failed to load stats:', err);
     }
     StatsPanel.setStats(null);
-    ActionBar.setDisabled('browse-media-btn', true);
+    MediaPanel.setFiles([]);
 }
 
 
@@ -38,6 +39,8 @@ async function bootstrap() {
     ActionBar.DEBUG = config.debug ?? false;
 
     Notify.init((message, isError) => Toast.show(message, isError));
+
+    MediaPanel.init();
 
     Tabs.bind();
     Tabs.setActive('stats');

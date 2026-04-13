@@ -2,5 +2,8 @@
 @import './shared/styles/tabs.css';
 @import './shared/styles/jobs-panel.css';
 @import './shared/styles/stats-panel.css';
+@import './shared/styles/table.css';
+@import './shared/styles/search-bar.css';
+@import './shared/styles/media-panel.css';
 @import './shared/styles/action-bar.css';
 @import './shared/styles/toast.css';

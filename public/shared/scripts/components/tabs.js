@@ -42,6 +42,7 @@ export default class Tabs {
 
     static _TABS = {
         stats: {panelId: 'tab-panel-stats', btnId: 'tab-btn-stats'},
-        jobs: {panelId: 'tab-panel-jobs', btnId: 'tab-btn-jobs'},
+        media: {panelId: 'tab-panel-media', btnId: 'tab-btn-media'},
+        jobs:  {panelId: 'tab-panel-jobs',  btnId: 'tab-btn-jobs'},
     };
 }

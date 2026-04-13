@@ -9,13 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="icon" href="shared/favicon.ico">
     <link rel="stylesheet" href="index.css">
-    <script src="https://grist-static.com/csv-viewer.js"></script>
 </head>
 
 <body>
 
 <div id="tab-nav" role="tablist" aria-label="main tabs">
     <button id="tab-btn-stats" class="tab-btn active" data-tab-target="stats" role="tab" aria-selected="true">STATS</button>
+    <button id="tab-btn-media" class="tab-btn" data-tab-target="media" role="tab" aria-selected="false">MEDIA</button>
     <button id="tab-btn-jobs" class="tab-btn" data-tab-target="jobs" role="tab" aria-selected="false">JOBS<span id="jobs-counts"></span></button>
 </div>
 
@@ -97,6 +97,17 @@
 
 </div>
 
+<div id="tab-panel-media" role="tabpanel" aria-labelledby="tab-btn-media" hidden>
+    <div id="media-view">
+        <div id="media-filters" class="media-filters"></div>
+        <div id="media-placeholder" class="placeholder-message" hidden>
+            <p>no data found</p>
+            <p>press <strong>SCAN MEDIA</strong> to scan your library</p>
+        </div>
+        <div id="media-table"></div>
+    </div>
+</div>
+
 <div id="tab-panel-jobs" role="tabpanel" aria-labelledby="tab-btn-jobs" hidden>
     <div id="jobs-view">
         <div id="jobs-empty" class="placeholder-message"><p>no active jobs</p></div>
@@ -106,7 +117,6 @@
 
 <div id="action-bar" hidden>
     <div id="action-buttons">
-        <button id="browse-media-btn" data-grist-csv-open="/data/media.csv">BROWSE MEDIA</button>
         <button id="scan-media-btn">SCAN MEDIA</button>
     </div>
     <div id="debug-buttons" hidden>

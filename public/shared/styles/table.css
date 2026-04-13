@@ -1,0 +1,97 @@
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.data-table thead tr {
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.data-table th {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+}
+
+.data-table th:hover {
+    color: var(--text);
+}
+
+.data-table th.sort-asc::after,
+.data-table th.sort-desc::after {
+    content: ' ▲';
+    font-size: 0.6rem;
+    color: var(--c-accent);
+}
+
+.data-table th.sort-desc::after {
+    content: ' ▼';
+}
+
+.data-table td {
+    padding: 0.45rem 0.75rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table tbody tr:hover td {
+    background: var(--bg-raised);
+}
+
+/* Path column: allow truncation */
+.data-table td.col-path {
+    max-width: 22rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+}
+
+/* Size column: numeric alignment */
+.data-table td.col-size,
+.data-table th.col-size,
+.data-table td.col-duration,
+.data-table th.col-duration {
+    text-align: right;
+}
+
+/* Pagination */
+.table-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.25rem 0;
+    gap: 1rem;
+}
+
+.table-pagination .page-info {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+}
+
+.table-pagination .page-btn {
+    padding: 0.3rem 0.75rem;
+    min-height: auto;
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    border-color: var(--border);
+}
+
+.table-pagination .page-btn:hover:not(:disabled) {
+    border-color: var(--border-strong);
+}
