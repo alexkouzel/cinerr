@@ -69,6 +69,54 @@
     text-align: right;
 }
 
+/* Filters */
+
+.table-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-group-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.filter-chip {
+    padding: 0.2rem 0.65rem;
+    min-height: auto;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    border-color: var(--border);
+    color: var(--text-dim);
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.filter-chip:hover {
+    border-color: var(--border-strong);
+    color: var(--text-soft);
+}
+
+.filter-chip.active {
+    border-color: var(--c-accent);
+    color: var(--text);
+}
+
 /* Pagination */
 .table-pagination {
     display: flex;

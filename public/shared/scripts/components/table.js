@@ -1,37 +1,51 @@
 /**
- * Generic, instantiable data table with multi-column sort and pagination.
+ * Generic, instantiable data table with multi-column sort, pagination, and filters.
  *
  * Column definition:
  *   key       {string}    row property key
  *   label     {string}    header text
  *   render?   {(val, row) => string}  custom cell renderer (returns text, not HTML)
  *   sort?     {(a, b) => number}      custom value comparator
- *   title?    {(val, row) => string}  tooltip for the <td> (e.g. full path on truncated cell)
+ *   title?    {(val, row) => string}  tooltip for the <td>
  *   className?{string}   CSS class applied to both <th> and <td>
+ *
+ * Filter definition:
+ *   id          {string}
+ *   label       {string}
+ *   type        {'chips'|'search'}
+ *   key?        {string}    row property key (chips; also default for search)
+ *   order?      {string[]}  preferred chip order
+ *   match?      {(row, query) => boolean}  custom match fn (search)
+ *   placeholder?{string}   input placeholder (search)
  */
+import SearchFilter from './search-filter.js';
+
 export default class Table {
 
     /**
      * @param {HTMLElement} el
-     * @param {Array<{key: string, label: string, render?: function, sort?: function, className?: string}>} columns
-     * @param {{pageSize?: number}} options
+     * @param {Array<{key: string, label: string, render?: function, sort?: function, title?: function, className?: string}>} columns
+     * @param {{pageSize?: number, filters?: Array}} options
      */
-    constructor(el, columns, {pageSize = 100} = {}) {
+    constructor(el, columns, {pageSize = 100, filters = []} = {}) {
         this._el = el;
         this._columns = columns;
         this._pageSize = pageSize;
+        this._filterSpecs = filters;
+        this._filterPredicates = new Map();
         this._rows = [];
-        this._sortSpec = [];   // [{key, dir: 1|-1}, ...]
+        this._sortSpec = [];
         this._page = 0;
         this._build();
     }
 
-    /** Replace the displayed rows. Resets to page 0. */
+    /** Replace the displayed rows. Resets filters and page; rebuilds chip values. */
     setRows(rows) {
         this._rows = rows;
+        this._filterPredicates = new Map();
         this._page = 0;
-        this._renderBody();
-        this._renderPagination();
+        this._buildFilterBar();
+        this._renderAll();
     }
 
     /**
@@ -42,13 +56,18 @@ export default class Table {
         this._sortSpec = spec;
         this._page = 0;
         this._updateSortIndicators();
-        this._renderBody();
-        this._renderPagination();
+        this._renderAll();
     }
 
     // --- private: build ---
 
     _build() {
+        if (this._filterSpecs.length) {
+            this._filtersEl = document.createElement('div');
+            this._filtersEl.className = 'table-filters';
+            this._el.appendChild(this._filtersEl);
+        }
+
         this._wrapper = document.createElement('div');
         this._wrapper.className = 'table-wrapper';
 
@@ -67,6 +86,88 @@ export default class Table {
         this._renderHead();
     }
 
+    // --- private: filters ---
+
+    _buildFilterBar() {
+        if (!this._filtersEl) return;
+        this._filtersEl.innerHTML = '';
+
+        for (const spec of this._filterSpecs) {
+            const groupEl = document.createElement('div');
+            groupEl.className = 'filter-group';
+
+            const labelEl = document.createElement('div');
+            labelEl.className = 'filter-group-label';
+            labelEl.textContent = spec.label;
+            groupEl.appendChild(labelEl);
+
+            if (spec.type === 'search') {
+                new SearchFilter(groupEl, {
+                    placeholder: spec.placeholder,
+                    onChange: (query) => {
+                        const q = query.trim();
+                        const pred = q
+                            ? (row) => spec.match
+                                ? spec.match(row, q)
+                                : String(row[spec.key] ?? '').toLowerCase().includes(q.toLowerCase())
+                            : null;
+                        this._setFilter(spec.id, pred);
+                    },
+                });
+            } else {
+                const values = this._uniqueValues(this._rows, spec.key, spec.order);
+                if (values.length < 2) continue;
+
+                const chipsEl = document.createElement('div');
+                chipsEl.className = 'filter-chips';
+
+                const active = new Set();
+                for (const val of values) {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-chip';
+                    btn.textContent = val;
+                    btn.addEventListener('click', () => {
+                        active.has(val) ? active.delete(val) : active.add(val);
+                        btn.classList.toggle('active', active.has(val));
+                        this._setFilter(spec.id, active.size ? (row) => active.has(row[spec.key]) : null);
+                    });
+                    chipsEl.appendChild(btn);
+                }
+
+                groupEl.appendChild(chipsEl);
+            }
+
+            this._filtersEl.appendChild(groupEl);
+        }
+    }
+
+    _setFilter(id, predicate) {
+        if (predicate) {
+            this._filterPredicates.set(id, predicate);
+        } else {
+            this._filterPredicates.delete(id);
+        }
+        this._page = 0;
+        this._renderAll();
+    }
+
+    _filteredRows() {
+        let rows = this._rows;
+        for (const pred of this._filterPredicates.values()) {
+            rows = rows.filter(pred);
+        }
+        return rows;
+    }
+
+    _uniqueValues(rows, key, order = []) {
+        const seen = new Set(rows.map(r => r[key]).filter(Boolean));
+        const result = order.filter(v => seen.has(v));
+        for (const v of [...seen].sort()) {
+            if (!result.includes(v)) result.push(v);
+        }
+        return result;
+    }
+
     // --- private: rendering ---
 
     _renderHead() {
@@ -82,10 +183,11 @@ export default class Table {
         this._thead.appendChild(tr);
     }
 
-    _renderBody() {
-        const sorted = this._sortedRows();
-        const start = this._page * this._pageSize;
-        const page = sorted.slice(start, start + this._pageSize);
+    _renderAll() {
+        const filtered = this._filteredRows();
+        const sorted   = this._sortedRows(filtered);
+        const start    = this._page * this._pageSize;
+        const page     = sorted.slice(start, start + this._pageSize);
 
         this._tbody.innerHTML = '';
         for (const row of page) {
@@ -100,10 +202,8 @@ export default class Table {
             }
             this._tbody.appendChild(tr);
         }
-    }
 
-    _renderPagination() {
-        const total = this._rows.length;
+        const total     = filtered.length;
         const pageCount = Math.max(1, Math.ceil(total / this._pageSize));
 
         if (pageCount <= 1) {
@@ -111,11 +211,7 @@ export default class Table {
             return;
         }
 
-        this._pagination.hidden = false;
-
-        const start = this._page * this._pageSize + 1;
-        const end = Math.min((this._page + 1) * this._pageSize, total);
-
+        const end  = Math.min((this._page + 1) * this._pageSize, total);
         const prev = document.createElement('button');
         prev.textContent = '←';
         prev.className = 'page-btn';
@@ -124,7 +220,7 @@ export default class Table {
 
         const info = document.createElement('span');
         info.className = 'page-info';
-        info.textContent = `page ${this._page + 1} of ${pageCount}  ·  ${start}–${end} of ${total}`;
+        info.textContent = `page ${this._page + 1} of ${pageCount}  ·  ${start + 1}–${end} of ${total}`;
 
         const next = document.createElement('button');
         next.textContent = '→';
@@ -132,6 +228,7 @@ export default class Table {
         next.disabled = this._page >= pageCount - 1;
         next.addEventListener('click', () => this._goToPage(this._page + 1));
 
+        this._pagination.hidden = false;
         this._pagination.replaceChildren(prev, info, next);
     }
 
@@ -139,20 +236,15 @@ export default class Table {
 
     _onHeaderClick(key) {
         const existing = this._sortSpec.find(s => s.key === key);
-        if (existing) {
-            this._sortSpec = [{key, dir: -existing.dir}];
-        } else {
-            this._sortSpec = [{key, dir: 1}];
-        }
+        this._sortSpec = [{key, dir: existing ? -existing.dir : 1}];
         this._page = 0;
         this._updateSortIndicators();
-        this._renderBody();
-        this._renderPagination();
+        this._renderAll();
     }
 
-    _sortedRows() {
-        if (!this._sortSpec.length) return this._rows;
-        return [...this._rows].sort((a, b) => {
+    _sortedRows(rows) {
+        if (!this._sortSpec.length) return rows;
+        return [...rows].sort((a, b) => {
             for (const {key, dir} of this._sortSpec) {
                 const col = this._columns.find(c => c.key === key);
                 const va = a[key] ?? '';
@@ -178,10 +270,9 @@ export default class Table {
     // --- private: pagination ---
 
     _goToPage(page) {
-        const pageCount = Math.ceil(this._rows.length / this._pageSize);
+        const pageCount = Math.ceil(this._filteredRows().length / this._pageSize);
         this._page = Math.max(0, Math.min(page, pageCount - 1));
-        this._renderBody();
-        this._renderPagination();
+        this._renderAll();
         this._el.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 }
