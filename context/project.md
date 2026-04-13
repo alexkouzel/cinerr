@@ -15,22 +15,9 @@ The CSV is the only data interchange between backend and frontend for media cont
 
 Single Python process. Threaded HTTP server. No framework, no database, no external services.
 
-- **Backend**: Python 3.12 stdlib plus `pymediainfo`. See [backend.md](backend.md).
-- **Frontend**: vanilla ES modules, no build step. See [frontend.md](frontend.md).
+- **Backend**: Python stdlib plus `pymediainfo`.
+- **Frontend**: vanilla ES modules, no build step.
 
 ## Configuration
 
-Env vars only: `MEDIA_DIR`, `DATA_DIR`, `PORT`, `DEBUG`. See the Configuration section in [README.md](../README.md).
-
-## Dependencies
-
-- Runtime: Python 3.12, `pymediainfo==7.0.1`, the `mediainfo` system binary.
-- Frontend: none. No bundler, no transpiler.
-- Dev: `pytest` for backend tests, Node 20+ for frontend tests (built-in runner).
-
-## Related context
-
-- [backend.md](backend.md): Python server, jobs, API surface.
-- [frontend.md](frontend.md): page structure and component/service layering.
-- [testing.md](testing.md): test suites and philosophy.
-- [conventions.md](conventions.md): code style and dependency rules.
+Env vars only: `MEDIA_DIR`, `DATA_DIR`, `PORT`, `DEBUG`.

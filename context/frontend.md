@@ -14,15 +14,3 @@ Shared scripts are split into two strictly independent layers:
 **Services must never import components. Components must never import services.** The two layers are independent and testable in isolation.
 
 Each page's `index.js` is the only place that knows about both. It wires them together by passing service callbacks into component hooks, or by subscribing components to service events.
-
-## Why this matters
-
-- Services are unit-testable without a DOM or jsdom.
-- Components can be restyled or replaced without touching business logic.
-- A new page can reuse any combination of services and components without inheriting coupling from existing pages.
-
-## Related context
-
-- [project.md](project.md): high-level project overview.
-- [backend.md](backend.md): the API the frontend consumes.
-- [testing.md](testing.md): test suites.

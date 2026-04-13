@@ -16,14 +16,8 @@ Covers the pure-logic modules in the backend: media scanning, metadata extractio
 node --test tests/public/
 ```
 
-Covers the pure-logic services the frontend relies on: CSV parsing and view-model building, and the job state machine that drives SSE events. DOM components and network-dependent modules are intentionally not covered.
+Covers the pure-logic services the frontend relies on: CSV parsing, view-model building, and the job state machine. DOM components and network-dependent modules are intentionally not covered.
 
 ## Philosophy
 
 Tests are curated for bug-catching value, not coverage. Before adding a test, ask whether a realistic regression would actually break it. Trivial guards and one-branch-per-test cases are intentionally omitted to keep maintenance low.
-
-## Related context
-
-- [project.md](project.md): high-level project overview.
-- [backend.md](backend.md): what the backend does.
-- [frontend.md](frontend.md): frontend layering and what's testable.
