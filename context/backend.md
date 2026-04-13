@@ -4,11 +4,13 @@ Single Python process. `ThreadingHTTPServer` from the stdlib. No framework, no d
 
 All state is kept in-process and does not survive a restart. Persistent data (the CSV and per-file caches) lives on disk under `DATA_DIR`.
 
-Entry point is `server.py`: it owns the HTTP server, the job system, API routes, and static file serving.
+Entry point is `server.py`: it owns the HTTP server, API routes, and static file serving. Job scheduling, the checkpoint mechanism, and the registry are in a dedicated job infrastructure module. Job type definitions are in a separate module. Scanning logic, the file cache, and file discovery each have their own module. `config.py` loads env vars.
 
 ## Jobs and SSE
 
 Long-running work runs as a cooperatively-checkpointed job. Pause, resume, and abort all take effect at the next checkpoint rather than killing a thread. The real job is `scan-media`; a few debug jobs exist behind `DEBUG=true` to exercise the UI.
+
+When implementing a job, call the checkpoint method at meaningful intervals within the work loop. The framework uses these calls to apply pause/resume/abort without killing threads. New job types are registered in the job types module, not in `server.py`.
 
 Job control is a POST API under `/api/jobs/*`. Live state is delivered over SSE (`/api/jobs/stream`). The first event is a `bootstrap` snapshot of the current job registry so the UI can pick up work already in flight on reconnect. Subsequent events are per-job snapshots emitted on every state change.
 

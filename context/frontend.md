@@ -2,7 +2,7 @@
 
 Vanilla JavaScript, no build step. ES modules loaded directly by the browser.
 
-Three pages live under `public/`: the main app, a public demo, and a marketing landing page. Each is self-contained with its own `index.html`, `index.css`, and `index.js`. Shared code lives under `public/shared/`.
+Three pages live under `public/`: the main app, a public demo, and a marketing landing page. Each is self-contained with its own markup and styles; pages that need behaviour add an `index.js`. Shared code lives under `public/shared/`.
 
 Shared scripts are split into two strictly independent layers:
 
