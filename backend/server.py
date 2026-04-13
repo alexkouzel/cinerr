@@ -10,7 +10,7 @@ API endpoints:
     POST    /api/jobs/{job_id}/abort     abort a running, paused, or queued job
     POST    /api/jobs/{job_id}/dismiss   remove a failed job from the registry
     DELETE  /api/debug/csv               delete the generated CSV (debug only)
-    GET     /public/*                    static files served from PUBLIC_DIR
+    GET     /*                           static files served from PUBLIC_DIR
     GET     /data/*                      static files served from DATA_DIR
 """
 
@@ -149,37 +149,25 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
 
-    _ALIASES = {
-        "/": "/public/index.html",
-        "/demo/": "/demo/index.html",
-        "/landing/": "/landing/index.html",
-        "/favicon.ico": "/public/shared/favicon.ico",
-    }
-
-    _ROUTES = [
-        ("/data/", DATA_DIR, len("/data/")),
-        ("/public/", PUBLIC_DIR, len("/public/")),
-        ("/demo/", PUBLIC_DIR, 1),
-        ("/landing/", PUBLIC_DIR, 1),
-        ("/shared/", PUBLIC_DIR, 1),
+    _STATIC_ROUTES = [
+        ("/data/", DATA_DIR),
+        ("/", PUBLIC_DIR),
     ]
 
     def _serve_static(self):
         url_path = self.path.split("?")[0]
-        url_path = self._ALIASES.get(url_path, url_path)
 
-        for prefix, root, strip in self._ROUTES:
+        for prefix, root in self._STATIC_ROUTES:
             if url_path.startswith(prefix):
-                rel = url_path[strip:]
+                rel = url_path[len(prefix):]
                 break
         else:
-            print(f"[server] no route for {url_path}", file=sys.stderr, flush=True)
             self.send_error(404)
             return
 
         # Resolve against the route root and verify the result stays inside it.
         root_real = os.path.realpath(root)
-        file_path = os.path.realpath(os.path.join(root_real, rel.lstrip("/")))
+        file_path = os.path.realpath(os.path.join(root_real, rel))
         if file_path != root_real and not file_path.startswith(root_real + os.sep):
             print(
                 f"[server] attempted directory traversal: {url_path}",
@@ -189,12 +177,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(403)
             return
 
+        # Directory → serve index.html (mirrors GitHub Pages / nginx behaviour).
+        if os.path.isdir(file_path):
+            file_path = os.path.join(file_path, "index.html")
+
         if not os.path.isfile(file_path):
-            print(
-                f"[server] static file not found: {file_path}",
-                file=sys.stderr,
-                flush=True,
-            )
             self.send_error(404)
             return
 
