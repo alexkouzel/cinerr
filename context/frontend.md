@@ -6,8 +6,8 @@ Three pages live under `public/`: the main app, a public demo, and a marketing l
 
 Shared scripts are split into two strictly independent layers:
 
-- **components**: UI. Touch the DOM, hold view state, expose imperative methods. (`action-bar`, `jobs-panel`, `stats-panel`, `tabs`, `toast`)
-- **services**: business logic. CSV parsing, view-model building, state machines, HTTP calls. (`api`, `jobs`, `media`, `notify`, `stats`)
+- **components**: UI. Touch the DOM, hold view state, expose imperative methods.
+- **services**: business logic. CSV parsing, view-model building, state machines, HTTP calls.
 
 ## Layering rule
 

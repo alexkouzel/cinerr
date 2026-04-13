@@ -33,7 +33,6 @@ The scan walks `MEDIA_DIR`, runs mediainfo for each file in a thread pool, and w
 
 The CSV schema is a contract between the backend writer and the frontend stats service. Changing columns or their meaning requires both sides to move together. The backend deliberately does not interpret the CSV on behalf of clients.
 
-Columns: `name`, `path`, `size`, `duration`, `format`, `profile`, `hdr`, `bitrate`, `framerate`, `resolution`, `audios`, `subtitles`, `audio_langs`, `subtitle_langs`.
 
 ## Related context
 

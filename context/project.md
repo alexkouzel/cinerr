@@ -6,7 +6,7 @@ Self-hosted media file manager. Users mount a media library read-only, run a sca
 
 1. Backend walks `MEDIA_DIR` and runs `mediainfo` on every file.
 2. Raw JSON per file is cached under `DATA_DIR`. Cached files are skipped on rescan.
-3. An aggregated `media.csv` and a `last-scan` timestamp are written atomically to `DATA_DIR`.
+3. An aggregated `media.csv` is written atomically to `DATA_DIR`.
 4. The frontend fetches `media.csv`.
 
 The CSV is the only data interchange between backend and frontend for media content. The backend never interprets or filters rows on behalf of the client.
