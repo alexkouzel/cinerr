@@ -28,7 +28,7 @@ import {
     parseDuration, parseSize, bitrateToGiB,
     topLevelPath, classifyResolution,
     formatDuration, formatSize,
-} from '../media-utils.js';
+} from '../common/media-utils.js';
 
 export default class Stats {
 

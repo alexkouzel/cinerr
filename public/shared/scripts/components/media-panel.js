@@ -3,7 +3,7 @@
  */
 
 import Table from './table.js';
-import { classifyResolution, parseSize, parseDuration } from '../media-utils.js';
+import { classifyResolution, parseSize, parseDuration } from '../common/media-utils.js';
 
 export default class MediaPanel {
 
