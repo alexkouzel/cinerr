@@ -23,6 +23,13 @@
  * }} StatsData
  */
 
+import {
+    parseAudioTracks, parseSubtitleTracks,
+    parseDuration, parseSize, bitrateToGiB,
+    topLevelPath, classifyResolution,
+    formatDuration, formatSize,
+} from '../media-utils.js';
+
 export default class Stats {
 
     // --- public ---
@@ -48,21 +55,21 @@ export default class Stats {
         const subtitleLang = {};
 
         for (const file of files) {
-            totalSeconds += this._parseDuration(file.duration);
-            totalGiB += this._parseSize(file.size);
+            totalSeconds += parseDuration(file.duration);
+            totalGiB += parseSize(file.size);
 
-            this._increment(path, this._topLevelPath(file.path));
-            this._increment(resolution, this._classifyResolution(file.resolution));
+            this._increment(path, topLevelPath(file.path));
+            this._increment(resolution, classifyResolution(file.resolution));
             this._increment(format, file.format && file.format !== '-' ? file.format : '-');
             this._increment(hdr, file.hdr && file.hdr !== '-' ? file.hdr : 'SDR');
 
-            for (const audio of this._parseAudioTracks(file.audios)) {
+            for (const audio of parseAudioTracks(file.audios)) {
                 audioTrackCount++;
                 this._increment(audioFormat, audio.format);
                 this._increment(audioLang, audio.lang);
             }
 
-            for (const sub of this._parseSubtitleTracks(file.subtitles)) {
+            for (const sub of parseSubtitleTracks(file.subtitles)) {
                 subtitleTrackCount++;
                 this._increment(subtitleLang, sub.lang);
             }
@@ -71,8 +78,8 @@ export default class Stats {
         return {
             summary: {
                 totalFiles: fileCount,
-                totalSize: this._formatSize(totalGiB),
-                totalDuration: this._formatDuration(totalSeconds),
+                totalSize: formatSize(totalGiB),
+                totalDuration: formatDuration(totalSeconds),
             },
             groups: {
                 path:           {counts: path,           total: fileCount},
@@ -90,99 +97,13 @@ export default class Stats {
         };
     }
 
-    // --- private: field parsers ---
-
-    // Format: "[lang, format, bitrate, Nch, (flags)]; ..."
-    static _parseAudioTracks(field) {
-        if (!field) return [];
-        return field.split('; ').map(entry => {
-            const inner = entry.slice(1, -1);
-            const parts = inner.split(', ');
-            const flags = parts[4] ? parts[4].slice(1, -1).split('|') : [];
-            return {
-                lang: parts[0] && parts[0] !== '-' ? parts[0] : '-',
-                format: parts[1] || '-',
-                bitrate: parts[2] || '-',
-                channels: parts[3] || '-',
-                flags,
-            };
-        });
-    }
-
-    // Format: "[lang, format, (flags)]; ..."
-    static _parseSubtitleTracks(field) {
-        if (!field) return [];
-        return field.split('; ').map(entry => {
-            const inner = entry.slice(1, -1);
-            const parts = inner.split(', ');
-            const flags = parts[2] ? parts[2].slice(1, -1).split('|') : [];
-            return {
-                lang: parts[0] || '-',
-                format: parts[1] || '-',
-                flags,
-            };
-        });
-    }
-
-    static _parseDuration(value) {
-        if (!value || value === '-') return 0;
-        const [h, m, s] = value.split(':').map(Number);
-        if ([h, m, s].some(isNaN)) return 0;
-        return h * 3600 + m * 60 + s;
-    }
-
-    static _parseSize(value) {
-        const match = (value || '').match(/([\d.]+)\s*GiB/);
-        return match ? parseFloat(match[1]) : 0;
-    }
-
-    static _bitrateToGiB(bitrateStr, durationSeconds) {
-        const match = (bitrateStr || '').match(/(\d+)\s*kb\/s/);
-        if (!match || !durationSeconds) return 0;
-        return parseInt(match[1], 10) * 1000 * durationSeconds / 8 / (1024 ** 3);
-    }
-
-    // --- private: classifiers ---
-
-    static _topLevelPath(value) {
-        if (!value || value === '/') return '/';
-        const second = value.indexOf('/', 1);
-        return second === -1 ? value : value.slice(0, second);
-    }
-
-    static _classifyResolution(value) {
-        if (!value || value === '-') return '-';
-        const height = parseInt((value.split('x')[1] || '0'), 10);
-        if (height >= 2160) return '4K';
-        if (height >= 1080) return '1080p';
-        if (height >= 720)  return '720p';
-        if (height >= 480)  return '480p';
-        return 'SD';
-    }
-
-    // --- private: formatters ---
-
-    static _formatDuration(totalSeconds) {
-        if (!totalSeconds || isNaN(totalSeconds)) return '—';
-        const h = Math.floor(totalSeconds / 3600);
-        const m = Math.floor((totalSeconds % 3600) / 60);
-        return `${h}h ${m}m`;
-    }
-
-    static _formatSize(gib) {
-        if (!gib || isNaN(gib)) return '—';
-        return gib >= 1024
-            ? `${(gib / 1024).toFixed(1)} TiB`
-            : `${Math.round(gib)} GiB`;
-    }
-
     // --- private: savings estimation ---
 
     static _estimateVideoSavings(files) {
         const sizeByCodec = {};
         for (const file of files) {
             const codec = file.format || '-';
-            const gib = this._bitrateToGiB(file.bitrate, this._parseDuration(file.duration));
+            const gib = bitrateToGiB(file.bitrate, parseDuration(file.duration));
             if (gib > 0) {
                 sizeByCodec[codec] = (sizeByCodec[codec] || 0) + gib;
             }
@@ -213,9 +134,9 @@ export default class Stats {
         const sizeByConversion = {};
 
         for (const file of files) {
-            const duration = this._parseDuration(file.duration);
-            for (const audio of this._parseAudioTracks(file.audios)) {
-                const gib = this._bitrateToGiB(audio.bitrate, duration);
+            const duration = parseDuration(file.duration);
+            for (const audio of parseAudioTracks(file.audios)) {
+                const gib = bitrateToGiB(audio.bitrate, duration);
                 if (!gib) continue;
 
                 const conv = this._AUDIO_CONVERSIONS.find(c => c.test(audio.format || ''));
