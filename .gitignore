@@ -13,6 +13,7 @@ __pycache__/
 
 # AI agents
 .claude/
+!.claude/settings.json
 
 # Custom files
 /compose.yml
