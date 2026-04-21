@@ -15,6 +15,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/alexkouzel/cinerr" alt="License"></a>
   <a href="https://github.com/alexkouzel/cinerr/actions/workflows/test.yml"><img src="https://github.com/alexkouzel/cinerr/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
+  <a href="https://hub.docker.com/r/alexkouzel/cinerr"><img src="https://img.shields.io/docker/pulls/alexkouzel/cinerr" alt="Docker Pulls"></a>
 </p>
 
 <p align="center">
@@ -23,7 +24,7 @@ Cinerr fills that gap.
 </p>
 
 <p align="center">
-  <img src="public/shared/images/cinerr-ss-stats-cropped.png" alt="Cinerr stats dashboard" width="800">
+  <img src="public/shared/images/cinerr-ss-stats-full.png" alt="Cinerr stats dashboard" width="800">
 </p>
 
 ## Features
